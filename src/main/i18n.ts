@@ -3,7 +3,7 @@
 // the settings window applies to everything main produces afterwards.
 import { app } from 'electron'
 import { getPrefs } from './store'
-import { createI18n, resolveLocale, type I18n, type Locale, type Params } from '../shared/i18n'
+import { createI18n, resolveLocale, type Locale, type Params } from '../shared/i18n'
 
 let cache: { locale: Locale; i18n: ReturnType<typeof createI18n> } | null = null
 

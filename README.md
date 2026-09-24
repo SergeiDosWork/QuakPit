@@ -24,7 +24,7 @@
 
 ## 🍴 Чем этот форк отличается от оригинала
 
-Оригинальный Quakpit создан [Ooble Studio](https://ooble.studio). В этом форке добавлено и исправлено:
+Оригинальный Quakpit создан [Ooble Studio](https://ooble.studio) (автор — TomFromOoble). В этом форке добавлено и исправлено:
 
 - ✈️ **Провайдер Microsoft Exchange (on-premises) по EWS** — корпоративный календарь через SOAP/EWS:
   Basic-аутентификация с автовосходящим переходом на NTLMv2, только HTTPS;
