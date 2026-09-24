@@ -1,16 +1,18 @@
-Self-hosted fonts bundled with the Quakpit landing page
-========================================================
+Self-hosted fonts bundled with the Quakpit app
+==============================================
 
-Both fonts are licensed under the SIL Open Font License, Version 1.1
+All fonts are licensed under the SIL Open Font License, Version 1.1
 (https://scripts.sil.org/OFL). They are bundled (self-hosted) instead of
-loaded from a CDN so the site makes no third-party requests.
+loaded from a CDN so the app makes no third-party requests.
 
-- Caveat        — Copyright The Caveat Project Authors
-                  (https://github.com/googlefonts/caveat)
-                  file: caveat-latin.woff2 (latin subset)
+- Caveat  — Copyright The Caveat Project Authors
+            (https://github.com/googlefonts/caveat)
+            files: caveat-latin.woff2 (latin subset),
+                   caveat-cyrillic.woff2 (cyrillic subset)
 
-- Patrick Hand  — Copyright Patrick Wagesreiter
-                  (https://github.com/pia-pi/patrickhand)
-                  file: patrickhand-latin.woff2 (latin subset)
+- Neucha  — Copyright Jovanny Lemonad
+            (https://fonts.google.com/specimen/Neucha)
+            files: neucha-latin.woff2 (latin subset),
+                   neucha-cyrillic.woff2 (cyrillic subset)
 
 Full license text: https://openfontlicense.org/open-font-license-official-text/
