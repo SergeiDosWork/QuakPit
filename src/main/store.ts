@@ -1,6 +1,7 @@
 import { app, safeStorage } from 'electron'
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { createI18n, resolveLocale, type LangPref } from '../shared/i18n'
 
 /** Non-personal preferences only — no calendar data ever lives here. */
 export type Prefs = {
@@ -21,25 +22,39 @@ export type Prefs = {
   flierHead: string // character head id
   flierColor: string // plane colour id
   customFlierName: string // legacy (kept so old prefs files still parse)
+  lang: LangPref // UI language: 'auto' = follow the system, else explicit
 }
 
-const DEFAULT_PREFS: Prefs = {
+// Locale-independent defaults; only messageTemplate depends on the language.
+const BASE_DEFAULTS = {
   leadMinutes: 5,
-  messageTemplate: '{title} in {minutes} minutes',
   soundEnabled: true,
   staySignedIn: true,
   launchAtLogin: false,
   hideFromDock: false,
-  targetDisplay: 'cursor',
+  targetDisplay: 'cursor' as const,
   theme: 'classic',
   flier: 'duck-plane',
   font: 'system',
-  speed: 'normal',
+  speed: 'normal' as const,
   flyAtStart: false,
   soundPack: 'quack',
   flierHead: 'duck',
   flierColor: 'red',
   customFlierName: ''
+}
+
+function defaultPrefs(lang: LangPref): Prefs {
+  const locale = resolveLocale(lang, app.getLocale())
+  return {
+    ...BASE_DEFAULTS,
+    messageTemplate: createI18n(locale).t('banner.default'),
+    lang
+  }
+}
+
+function sanitizeLang(value: unknown): LangPref {
+  return value === 'ru' || value === 'en' ? value : 'auto'
 }
 
 function dataDir(): string {
@@ -60,16 +75,17 @@ let cache: Prefs | null = null
 
 export function getPrefs(): Prefs {
   if (cache) return cache
+  let raw: Partial<Prefs> = {}
   try {
     if (existsSync(prefsPath())) {
-      const raw = JSON.parse(readFileSync(prefsPath(), 'utf8'))
-      cache = { ...DEFAULT_PREFS, ...raw }
-    } else {
-      cache = { ...DEFAULT_PREFS }
+      raw = JSON.parse(readFileSync(prefsPath(), 'utf8')) as Partial<Prefs>
     }
   } catch {
-    cache = { ...DEFAULT_PREFS }
+    raw = {}
   }
+  // Defaults (with a localized banner template) sit underneath whatever was saved —
+  // an existing user's messageTemplate is NEVER rewritten.
+  cache = { ...defaultPrefs(sanitizeLang(raw.lang)), ...raw }
   return cache as Prefs
 }
 

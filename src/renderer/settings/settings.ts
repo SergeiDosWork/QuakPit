@@ -125,7 +125,8 @@ let prefs: Prefs = {
   soundPack: 'quack',
   flierHead: 'duck',
   flierColor: 'red',
-  customFlierName: ''
+  customFlierName: '',
+  lang: 'auto'
 }
 
 // ---- General -------------------------------------------------------------

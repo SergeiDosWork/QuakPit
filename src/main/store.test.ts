@@ -7,7 +7,7 @@ import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 // Electron's app.getPath. Point it at a throwaway directory per test so the
 // real file I/O is exercised without touching a real user profile.
 vi.mock('electron', () => ({
-  app: { getPath: () => currentDir },
+  app: { getPath: () => currentDir, getLocale: () => 'en' },
   safeStorage: { isEncryptionAvailable: () => false }
 }))
 

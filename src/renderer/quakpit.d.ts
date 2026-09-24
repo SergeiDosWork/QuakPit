@@ -30,6 +30,7 @@ declare global {
     flierHead: string
     flierColor: string
     customFlierName: string
+    lang: 'auto' | 'ru' | 'en'
   }
 
   type ProviderStatus = {
