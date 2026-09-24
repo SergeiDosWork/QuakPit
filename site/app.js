@@ -5,7 +5,7 @@
 // =============================================================================
 
 // --- Configuration: point this at the GitHub repo that hosts the releases ---
-const GITHUB_OWNER = 'Ooble-Studio'
+const GITHUB_OWNER = 'SergeiDosWork'
 const GITHUB_REPO = 'QuakPit'
 // ---------------------------------------------------------------------------
 

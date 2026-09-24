@@ -1,6 +1,6 @@
-appId: com.ooblestudio.quakpit
+appId: com.sergeidos.quakpit
 productName: Quakpit
-copyright: © Ooble Studio
+copyright: © SergeiDos
 
 directories:
   buildResources: build
@@ -60,8 +60,8 @@ dmg:
     - { x: 150, y: 175, type: file }
     - { x: 450, y: 175, type: link, path: /Applications }
 
-# Auto-update feed (electron-updater). Adjust owner/repo before publishing.
+# Auto-update feed (electron-updater) — GitHub Releases of this repo.
 publish:
   provider: github
-  owner: Ooble-Studio
+  owner: SergeiDosWork
   repo: QuakPit

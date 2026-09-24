@@ -14,7 +14,7 @@ export const ru: Dict = {
   'settings.tab.appearance': 'Оформление',
   'settings.tab.calendar': 'Календарь',
   'settings.testFlight': 'Отправить тестовый полёт',
-  'settings.presentedBy': 'От студии',
+  'settings.presentedBy': 'Автор',
 
   // --- general tab ---
   'settings.general.subtitle': 'Когда и как прилетает утка.',

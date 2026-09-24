@@ -11,20 +11,19 @@
 
 <p align="center">
   <strong>Бесплатно и с открытым кодом.</strong> macOS · интерфейс на русском и английском.<br/>
-  Форк оригинального <a href="https://ooble.studio"><strong>Quakpit</strong></a> от <strong>Ooble Studio</strong> 🐣
+  Автор — <a href="https://github.com/SergeiDosWork/QuakPit"><strong>SergeiDos</strong></a> 🐣
 </p>
 
 <p align="center">
   <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-1a1a1a" />
   <img alt="Platform: macOS" src="https://img.shields.io/badge/platform-macOS-1a1a1a" />
-  <a href="https://x.com/ooblestudio"><img alt="Follow @ooblestudio on X" src="https://img.shields.io/badge/X-%40ooblestudio-1a1a1a" /></a>
 </p>
 
 ---
 
 ## 🍴 Чем этот форк отличается от оригинала
 
-Оригинальный Quakpit создан [Ooble Studio](https://ooble.studio) (автор — TomFromOoble). В этом форке добавлено и исправлено:
+Quakpit — проект [SergeiDos](https://github.com/SergeiDosWork/QuakPit). В этой версии добавлено и исправлено:
 
 - ✈️ **Провайдер Microsoft Exchange (on-premises) по EWS** — корпоративный календарь через SOAP/EWS:
   Basic-аутентификация с автовосходящим переходом на NTLMv2, только HTTPS;
@@ -144,7 +143,6 @@ site/             статический лендинг (не входит в с
 
 ## Лицензия
 
-[MIT](LICENSE) © оригинал — [Ooble Studio](https://ooble.studio). Этот форк распространяется
-на тех же условиях.
+[MIT](LICENSE) © [SergeiDos](https://github.com/SergeiDosWork/QuakPit)
 
-<p align="center"><sub>Оригинальный Quakpit сделан с 🧡 командой <a href="https://ooble.studio">Ooble Studio</a></sub></p>
+<p align="center"><sub>Quakpit основан на оригинальном приложении — <a href="https://github.com/SergeiDosWork/QuakPit">github.com/SergeiDosWork/QuakPit</a></sub></p>

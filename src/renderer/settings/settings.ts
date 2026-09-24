@@ -566,7 +566,7 @@ xDisconnect.addEventListener('click', async () => {
 
 document.getElementById('made-by')?.addEventListener('click', (e) => {
   e.preventDefault()
-  void q.openExternal('https://ooble.studio')
+  void q.openExternal('https://github.com/SergeiDosWork/QuakPit')
 })
 
 testBtn.addEventListener('click', () => void q.testFlight())

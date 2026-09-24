@@ -10,7 +10,7 @@ button points to the releases page.
 Edit the top of `app.js`:
 
 ```js
-const GITHUB_OWNER = 'Ooble-Studio'
+const GITHUB_OWNER = 'SergeiDosWork'
 const GITHUB_REPO = 'QuakPit'
 ```
 
@@ -31,7 +31,7 @@ python3 -m http.server 8080
 - **Netlify**: drag the `site/` folder onto https://app.netlify.com/drop
 - **Vercel**: `npx vercel deploy site --prod`
 - **GitHub Pages**: push `site/` to a repo and enable Pages, or use a `gh-pages` branch
-- **Your domain**: upload the three files to any static host (e.g. `quakpit.ooble.studio`)
+- **Your domain**: upload the three files to any static host (e.g. `quakpit.example.com`)
 
 > Note: macOS/Windows installers must be **code-signed + notarized** so they download and open
 > without security warnings (see the main `../README.md`).
