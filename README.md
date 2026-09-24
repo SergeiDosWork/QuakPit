@@ -5,126 +5,146 @@
 <h1 align="center">Quakpit 🦆✈️</h1>
 
 <p align="center">
-  A little duck in a plane flies across your screen, above every app, towing a banner that<br/>
-  reminds you of your next meeting — with a plane engine sound. Fully automatic from your calendar.
+  Маленькая утка на самолёте пролетает по всему экрану поверх всех окон и тащит за собой баннер,<br/>
+  который напоминает о ближайшей встрече — со звуком авиамотора. Полностью автоматически, по вашему календарю.
 </p>
 
 <p align="center">
-  <strong>Free &amp; open source.</strong> macOS · UI in English.<br/>
-  A project by <a href="https://ooble.studio"><strong>Ooble Studio</strong></a> 🐣
+  <strong>Бесплатно и с открытым кодом.</strong> macOS · интерфейс на русском и английском.<br/>
+  Форк оригинального <a href="https://ooble.studio"><strong>Quakpit</strong></a> от <strong>Ooble Studio</strong> 🐣
 </p>
 
 <p align="center">
   <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-1a1a1a" />
   <img alt="Platform: macOS" src="https://img.shields.io/badge/platform-macOS-1a1a1a" />
-  <img alt="By Ooble Studio" src="https://img.shields.io/badge/by-Ooble%20Studio-ffd34d" />
   <a href="https://x.com/ooblestudio"><img alt="Follow @ooblestudio on X" src="https://img.shields.io/badge/X-%40ooblestudio-1a1a1a" /></a>
 </p>
 
 ---
 
-## 🐤 Made by Ooble Studio
+## 🍴 Чем этот форк отличается от оригинала
 
-Quakpit is built and given away **for free** by **[Ooble Studio](https://ooble.studio)** — a design
-studio specializing in **UX, branding & motion design** for **Web3 and AI** products. Quakpit is our
-little open-source gift to your desktop; if it makes you smile, come see what we craft for clients at
-**[ooble.studio](https://ooble.studio)**.
-📣 Follow along on **[X / Twitter (@ooblestudio)](https://x.com/ooblestudio)**.
+Оригинальный Quakpit создан [Ooble Studio](https://ooble.studio). В этом форке добавлено и исправлено:
 
-> Quakpit stays free and open source. There's an optional **Pro** unlock (extra characters, plane
-> colours, sounds, themes and flight speeds) that funds the studio — but the whole free app, the one
-> in this repo, is yours, forever.
+- ✈️ **Провайдер Microsoft Exchange (on-premises) по EWS** — корпоративный календарь через SOAP/EWS:
+  Basic-аутентификация с автовосходящим переходом на NTLMv2, только HTTPS;
+- 🆓 **Pro и лицензирование полностью удалены** — всё, что раньше было платным (персонажи, цвета
+  самолёта, звуки, темы баннера, скорости полёта), теперь бесплатно и в комплекте; из кода убраны
+  проверки лицензии и обращения к Polar;
+- 🙈 **Режим «скрыть значок из Dock»** — приложение живёт только в строке меню (без иконки в Dock
+  и Cmd+Tab), плюс новая иконка трея, сгенерированная из артворка приложения;
+- 🐞 **Исправлен дублирующийся пункт «Apple iCloud»** в списке календарных провайдеров;
+- 🌍 **Двуязычный интерфейс: русский и английский** — язык системы определяется автоматически,
+  переключатель в «Настройки → Основные → Язык» (это изменение).
 
-## What it does
+## Что оно делает
 
-Once it's running (it lives quietly in your **menu bar**), Quakpit watches your calendar and, a few
-minutes before each meeting, sends the duck flying across **every** app you have open — towing a
-banner like _"Call with Jack in 5 minutes"_, with an engine drone and a quack. That's it. No window
-to manage, no notification to dismiss.
+Quakpit тихо живёт в **строке меню**, следит за вашим календарём и за несколько минут до встречи
+запускает утку в полёт **поверх всех** открытых окон — с баннером вроде _«Звонок с Джеком через
+5 минут»_, гулом мотора и кряканьем. Всё. Никаких окон, никаких уведомлений, которые надо закрывать.
 
-- **Send a test flight** anytime — or press **⌘⇧D**
-- Works with **Google Calendar** and **iCloud**
-- Set the lead time, the message, the sound
+- **Тестовый полёт** в любой момент — или горячая клавиша **⌘⇧D**
+- Работает с **Google Календарём**, **Apple iCloud**, **Microsoft Exchange (EWS)** и **iCal-ссылками** (.ics)
+- Настраиваются время до напоминания, текст баннера, звук
 
-## Privacy — zero data
+## Приватность — ноль данных
 
-Quakpit has **no server** and **no database**. It talks **directly** to Google / Apple from your
-machine. Calendar events are kept **in memory only** and never written to disk. The only things that
-can be stored locally are your OAuth refresh token and (if you go Pro) your license — **encrypted by
-the OS** (Keychain). No telemetry, no analytics. Ever.
+У Quakpit **нет сервера** и **нет базы данных**. Приложение общается с Google / Apple / вашим
+Exchange **напрямую** с вашего компьютера. События календаря хранятся **только в памяти** и никогда
+не пишутся на диск. Локально могут сохраняться только токен Google и учётные данные iCloud/Exchange —
+**зашифрованные ОС** (Keychain). Никакой телеметрии и аналитики. Никогда.
 
-## Download
+## Скачивание
 
-Grab the latest **macOS** build from the [**Releases**](../../releases) page (or from
-[ooble.studio](https://ooble.studio)).
+Забирайте последнюю сборку для **macOS** со страницы [**Releases**](../../releases).
 
-
-## Open source & Pro
-
-Quakpit is **open-core**. This repository is the **complete free app** — MIT-licensed and fully
-functional on its own. **Pro** adds extra plane colours, animal characters & sounds, banner themes
-and flight speeds, unlocked with a license key; their artwork/sounds aren't part of this repo. The
-license check is here and only talks to [Polar](https://polar.sh)'s **public** endpoints — no secret
-ships in the app.
-
-## Develop
+## Разработка
 
 ```bash
 npm install
-npm run dev      # run from YOUR terminal (not an automated shell)
-npm run build    # production build into ./out
+npm run dev      # запускайте из СВОЕГО терминала (не из автоматизированного шелла)
+npm run build    # production-сборка в ./out
+npm test         # vitest (локально: CI гоняет только tsc + build)
 ```
 
-> Heads-up: if your shell sets `ELECTRON_RUN_AS_NODE=1`, Electron won't open a GUI. Use a normal
-> terminal, or run `env -u ELECTRON_RUN_AS_NODE npm run dev`.
+> Внимание: если шелл выставляет `ELECTRON_RUN_AS_NODE=1`, Electron не откроет окно. Используйте
+> обычный терминал или `env -u ELECTRON_RUN_AS_NODE npm run dev`.
 
-### Connect Google Calendar (one-time setup)
+### Подключение Google Календаря (разовая настройка)
 
-You need your own Google OAuth client (so nothing routes through anyone else):
+Нужен собственный Google OAuth-клиент (чтобы ничего не шло через чужие серверы):
 
-1. <https://console.cloud.google.com/> → create a project.
-2. **APIs & Services → Library** → enable **Google Calendar API**.
-3. **OAuth consent screen** → External. Add the scope `.../auth/calendar.events.readonly`. While
-   testing, add your account under **Test users** (no verification needed for up to 100 testers).
+1. <https://console.cloud.google.com/> → создать проект.
+2. **APIs & Services → Library** → включить **Google Calendar API**.
+3. **OAuth consent screen** → External. Добавить скоуп `.../auth/calendar.events.readonly`. В тестовом
+   режиме добавьте свой аккаунт в **Test users** (верификация не нужна до 100 тестеров).
 4. **Credentials → Create credentials → OAuth client ID → Desktop app**.
-5. Copy `oauth-credentials.example.json` to **`oauth-credentials.json`** and paste your
-   `clientId` / `clientSecret`. (For desktop apps the secret is not confidential; the file is gitignored.)
+5. Скопировать `oauth-credentials.example.json` в **`oauth-credentials.json`** и вставить свой
+   `clientId` / `clientSecret`. (Для desktop-приложений секрет не конфиденциален; файл в gitignore.)
 
-Then: **Settings… → Calendar → Google Calendar → Connect**.
+Затем: **Настройки → Календарь → Google Календарь → Подключить**.
 
-### Connect iCloud (no Cloud Console needed)
+### Подключение iCloud (без облачных консолей)
 
-iCloud uses **CalDAV** with an **app-specific password**:
+iCloud работает по **CalDAV** с **паролем приложения**:
 
-1. <https://appleid.apple.com> → **Sign-In & Security → App-Specific Passwords** → generate one.
-2. In Quakpit: **Settings… → Calendar → iCloud** → Apple ID + that password → **Connect**.
+1. <https://appleid.apple.com> → **Вход и безопасность → Пароли приложений** → создать пароль.
+2. В Quakpit: **Настройки → Календарь → Apple iCloud** → Apple ID + этот пароль → **Подключить**.
 
-The password is stored **encrypted on your device** (Keychain), used only to read your calendars over
-HTTPS directly from Apple.
+Пароль хранится **зашифрованным на вашем устройстве** (Keychain) и используется только для чтения
+календарей по HTTPS напрямую у Apple.
 
-### Build a macOS app
+### Подключение Microsoft Exchange (корпоративный)
+
+Нужен EWS-адрес вашего сервера:
+
+1. Узнайте у IT адрес EWS — обычно `https://mail.company.com/EWS/Exchange.asmx`.
+2. В Quakpit: **Настройки → Календарь → Microsoft Exchange** → адрес, логин Windows (например,
+   `CORP\jane`) и пароль → **Подключить**.
+
+Сервер должен быть доступен из офисной сети или через VPN. Пароль хранится **зашифрованным на вашем
+устройстве** и уходит только на ваш сервер Exchange.
+
+### Подключение по ссылке (iCal / .ics)
+
+**Настройки → Календарь → Добавить по ссылке**: вставьте ссылку вида
+`https://…/basic.ics` (Google: _Настройки и доступ → Интеграция календаря → Секретный адрес в формате
+iCal_) — и всё.
+
+### Сборка macOS-приложения
 
 ```bash
 npm run dist:mac   # -> dist/Quakpit-<version>-universal.dmg
 ```
 
-For an unsigned local test build: `npm run build && CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --dir`.
-A signed/notarized build (warning-free download + auto-update) needs an Apple Developer account
-($99/yr) and a _Developer ID Application_ certificate; set `APPLE_ID` / `APPLE_APP_SPECIFIC_PASSWORD`
-/ `APPLE_TEAM_ID` and `mac.notarize: true` in `electron-builder.yml`.
+Для локальной тестовой сборки без подписи: `npm run build && CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --dir`.
+Подписанная и нотаризованная сборка (без предупреждений + автообновление) требует Apple Developer
+аккаунт ($99/год) и сертификат _Developer ID Application_; задайте `APPLE_ID` /
+`APPLE_APP_SPECIFIC_PASSWORD` / `APPLE_TEAM_ID` и `mac.notarize: true` в `electron-builder.yml`.
 
-## Project layout
+## Структура проекта
 
 ```
-src/main/        Electron main process (windows, tray, calendar, scheduler, store, license)
-src/preload/     Safe bridge exposed to the renderers
-src/renderer/    overlay (the flight) + settings (the form)
-scripts/         tray + app icon generators
-site/            static download / landing page
+src/main/         Electron main (окна, трей, календари, планировщик, хранилище)
+src/main/i18n.ts  локализация main-процесса
+src/preload/      Безопасный мост для рендереров
+src/renderer/     overlay (полёт) + settings (настройки)
+src/shared/i18n/  Каталоги строк интерфейса (en + ru) и ядро i18n
+scripts/          генераторы иконок трея и приложения
+site/             статический лендинг (не входит в сборку приложения)
 ```
 
-## License
+## Язык интерфейса
 
-[MIT](LICENSE) © [Ooble Studio](https://ooble.studio)
+- По умолчанию — язык системы: русский → русский интерфейс, остальные → английский.
+- Смена: **Настройки → Основные → Язык** — применяется сразу, без перезапуска.
+- Добавить свой язык: скопируйте `src/shared/i18n/en.ts`, переведите значения и подключите новую
+  локаль в `src/shared/i18n/core.ts` (`resolveLocale` + `pluralIndex`). Тест `catalogs.test.ts`
+  проверит полноту каталога.
 
-<p align="center"><sub>Made with 🧡 by <a href="https://ooble.studio">Ooble Studio</a></sub></p>
+## Лицензия
+
+[MIT](LICENSE) © оригинал — [Ooble Studio](https://ooble.studio). Этот форк распространяется
+на тех же условиях.
+
+<p align="center"><sub>Оригинальный Quakpit сделан с 🧡 командой <a href="https://ooble.studio">Ooble Studio</a></sub></p>

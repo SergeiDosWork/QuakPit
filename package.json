@@ -1,7 +1,7 @@
 {
   "name": "quakpit",
   "version": "0.1.0",
-  "description": "A little duck in a plane flies across your screen towing a banner that reminds you of your next meeting.",
+  "description": "Утка на самолёте пролетает по экрану с баннером-напоминанием о встрече. A little duck in a plane flies across your screen towing a banner that reminds you of your next meeting.",
   "author": "Ooble Studio",
   "license": "MIT",
   "main": "./out/main/index.js",

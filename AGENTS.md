@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Quakpit — Electron (electron-vite) menubar app for macOS: a duck in a plane flies across the screen before your calendar meetings. TypeScript (strict), vanilla TS/HTML/CSS renderers — no UI framework. UI and code comments are English.
+Quakpit — Electron (electron-vite) menubar app for macOS: a duck in a plane flies across the screen before your calendar meetings. TypeScript (strict), vanilla TS/HTML/CSS renderers — no UI framework. UI is bilingual (English + Russian) via `src/shared/i18n/` — every user-visible string comes from the catalogs (en.ts/ru.ts), never hardcoded; code comments are English.
 
 ## Commands
 
