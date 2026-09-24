@@ -66,8 +66,8 @@
   /* fonts */
   --font-hand: "Caveat", "Comic Sans MS", "Bradley Hand", cursive;
   --font-note: "Neucha", "Caveat", "Comic Sans MS", "Bradley Hand", cursive;
-  --font-body: "Nunito", ui-rounded, "SF Pro Rounded", "Hiragino Maru Gothic ProN",
-    -apple-system, system-ui, "Segoe UI", sans-serif;
+  --font-body: "Nunito", ui-rounded, "SF Pro Rounded", -apple-system,
+    BlinkMacSystemFont, system-ui, "Segoe UI", sans-serif;
 
   /* hand-drawn box radius (wobble trick) */
   --wobble-a: 18px 30px 16px 28px / 28px 16px 30px 18px;

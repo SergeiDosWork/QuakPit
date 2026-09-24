@@ -10,7 +10,7 @@ export const FONTS: FontChoice[] = [
   {
     id: 'rounded',
     name: 'Rounded',
-    stack: "'SF Pro Rounded', 'Arial Rounded MT Bold', 'Hiragino Maru Gothic ProN', system-ui, sans-serif"
+    stack: "'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif"
   },
   { id: 'serif', name: 'Serif', stack: "Georgia, 'Times New Roman', serif" },
   { id: 'mono', name: 'Mono', stack: "'SF Mono', Menlo, Consolas, monospace" },
