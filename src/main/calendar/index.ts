@@ -2,6 +2,7 @@ import * as google from './google'
 import * as icloud from './icloud'
 import * as ical from './ical'
 import * as exchange from './exchange'
+import { t } from '../i18n'
 import type { ProviderStatus, UpcomingEvent } from './types'
 
 export type { ProviderStatus, UpcomingEvent } from './types'
@@ -21,7 +22,7 @@ export function statuses(): ProviderStatus[] {
     ical.status(),
     {
       id: 'google',
-      name: 'Google Calendar',
+      name: t('calendar.google.name'),
       connected: g.connected,
       detail: g.email,
       configured: g.configured
@@ -66,7 +67,7 @@ export async function connect(
   else if (provider === 'icloud') await icloud.connect(params.username ?? '', params.password ?? '')
   else if (provider === 'exchange')
     await exchange.connect({ serverUrl: params.serverUrl, username: params.username, password: params.password })
-  else throw new Error(`Unknown provider: ${provider}`)
+  else throw new Error(t('calendar.unknownProvider', { id: provider }))
   return statuses()
 }
 
@@ -83,6 +84,6 @@ export function configure(
   params: { clientId?: string; clientSecret?: string }
 ): ProviderStatus[] {
   if (provider === 'google') google.setCreds(params.clientId ?? '', params.clientSecret ?? '')
-  else throw new Error(`Cannot configure provider: ${provider}`)
+  else throw new Error(t('calendar.cannotConfigure', { id: provider }))
   return statuses()
 }

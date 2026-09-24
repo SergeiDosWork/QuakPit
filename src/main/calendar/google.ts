@@ -11,6 +11,7 @@ import {
   saveGoogleCreds,
   saveRefreshToken
 } from '../store'
+import { currentLocale, t } from '../i18n'
 
 const SCOPE = 'https://www.googleapis.com/auth/calendar.events.readonly openid email'
 const AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
@@ -65,7 +66,7 @@ function loadCreds(): Creds | null {
 export function setCreds(clientId: string, clientSecret: string): void {
   const id = clientId.trim()
   const secret = clientSecret.trim()
-  if (!id || !secret) throw new Error('Enter both the Client ID and the Client secret.')
+  if (!id || !secret) throw new Error(t('google.enterCreds'))
   saveGoogleCreds(JSON.stringify({ clientId: id, clientSecret: secret }))
 }
 
@@ -96,7 +97,7 @@ export async function init(): Promise<void> {
 
 export async function connect(): Promise<void> {
   const creds = loadCreds()
-  if (!creds) throw new Error('Google OAuth credentials are not configured (see README).')
+  if (!creds) throw new Error(t('google.notConfigured'))
 
   const verifier = base64url(randomBytes(32))
   const challenge = base64url(createHash('sha256').update(verifier).digest())
@@ -115,7 +116,7 @@ export async function connect(): Promise<void> {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body
   })
-  if (!res.ok) throw new Error(`Token exchange failed (${res.status})`)
+  if (!res.ok) throw new Error(t('google.tokenExchangeFailed', { status: res.status }))
   const json = (await res.json()) as Record<string, unknown>
 
   accessToken = String(json.access_token)
@@ -162,7 +163,7 @@ export async function listUpcoming(withinMinutes = 60): Promise<UpcomingEvent[]>
   url.searchParams.set('maxResults', '15')
 
   const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
-  if (!res.ok) throw new Error(`Events fetch failed (${res.status})`)
+  if (!res.ok) throw new Error(t('google.eventsFetchFailed', { status: res.status }))
   const json = (await res.json()) as { items?: unknown[] }
 
   const events: UpcomingEvent[] = []
@@ -180,7 +181,7 @@ export async function listUpcoming(withinMinutes = 60): Promise<UpcomingEvent[]>
     if (declined) continue
     events.push({
       id: it.id ?? String(it.start.dateTime),
-      title: it.summary ?? 'Untitled event',
+      title: it.summary ?? t('event.untitled'),
       start: new Date(it.start.dateTime).getTime()
     })
   }
@@ -199,7 +200,7 @@ function runLoopback(
     server.listen(0, '127.0.0.1', () => {
       const addr = server.address()
       if (!addr || typeof addr === 'string') {
-        reject(new Error('Could not open a local callback port'))
+        reject(new Error(t('google.loopbackFailed')))
         return
       }
       const redirectUri = `http://127.0.0.1:${addr.port}`
@@ -217,7 +218,7 @@ function runLoopback(
 
       const timeout = setTimeout(() => {
         server.close()
-        reject(new Error('Sign-in timed out'))
+        reject(new Error(t('google.signInTimeout')))
       }, 300_000)
 
       server.on('request', (req, res) => {
@@ -226,12 +227,12 @@ function runLoopback(
         const error = url.searchParams.get('error')
         res.writeHead(200, { 'Content-Type': 'text/html' })
         res.end(
-          '<!doctype html><html><body style="font-family:-apple-system,sans-serif;text-align:center;padding-top:64px;background:#0b1b2b;color:#fff"><h2>🦆 Quakpit is connected!</h2><p>You can close this tab and return to the app.</p></body></html>'
+          `<!doctype html><html lang="${currentLocale()}"><body style="font-family:-apple-system,sans-serif;text-align:center;padding-top:64px;background:#0b1b2b;color:#fff"><h2>${t('google.oauthPage.title')}</h2><p>${t('google.oauthPage.subtitle')}</p></body></html>`
         )
         clearTimeout(timeout)
         server.close()
         if (code) resolve({ code, redirectUri })
-        else reject(new Error(error ?? 'No authorization code returned'))
+        else reject(new Error(error ?? t('google.noAuthCode')))
       })
     })
   })
@@ -239,7 +240,7 @@ function runLoopback(
 
 async function refreshAccess(): Promise<void> {
   const creds = loadCreds()
-  if (!creds || !refreshToken) throw new Error('Cannot refresh: not connected')
+  if (!creds || !refreshToken) throw new Error(t('google.cannotRefresh'))
   const body = new URLSearchParams({
     client_id: creds.clientId,
     client_secret: creds.clientSecret,
@@ -251,7 +252,7 @@ async function refreshAccess(): Promise<void> {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body
   })
-  if (!res.ok) throw new Error(`Token refresh failed (${res.status})`)
+  if (!res.ok) throw new Error(t('google.tokenRefreshFailed', { status: res.status }))
   const json = (await res.json()) as Record<string, unknown>
   accessToken = String(json.access_token)
   accessExpiry = Date.now() + Number(json.expires_in ?? 3600) * 1000
@@ -261,7 +262,7 @@ async function refreshAccess(): Promise<void> {
 async function getAccessToken(): Promise<string> {
   if (accessToken && Date.now() < accessExpiry - 60_000) return accessToken
   await refreshAccess()
-  if (!accessToken) throw new Error('No access token available')
+  if (!accessToken) throw new Error(t('google.noAccessToken'))
   return accessToken
 }
 

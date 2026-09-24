@@ -1,5 +1,6 @@
 import ICAL from 'ical.js'
 import { clearICloud, loadICloud, saveICloud } from '../store'
+import { t } from '../i18n'
 import type { ProviderStatus, UpcomingEvent } from './types'
 
 const ROOT = 'https://caldav.icloud.com'
@@ -25,7 +26,7 @@ function authHeader(c: Creds): string {
 }
 
 async function dav(url: string, method: string, body: string, depth = '0'): Promise<string> {
-  if (!creds) throw new Error('iCloud not connected')
+  if (!creds) throw new Error(t('icloud.notConnected'))
   const res = await fetch(url, {
     method,
     headers: {
@@ -36,8 +37,8 @@ async function dav(url: string, method: string, body: string, depth = '0'): Prom
     body,
     redirect: 'follow'
   })
-  if (res.status === 401) throw new Error('Wrong Apple ID or app-specific password.')
-  if (res.status !== 207 && !res.ok) throw new Error(`iCloud CalDAV error (${res.status})`)
+  if (res.status === 401) throw new Error(t('icloud.wrongCreds'))
+  if (res.status !== 207 && !res.ok) throw new Error(t('icloud.davError', { status: res.status }))
   return res.text()
 }
 
@@ -52,7 +53,7 @@ function hrefInside(xml: string, tag: string): string | null {
 async function discover(): Promise<Cal[]> {
   if (calendars) return calendars
   loadCreds()
-  if (!creds) throw new Error('iCloud not connected')
+  if (!creds) throw new Error(t('icloud.notConnected'))
 
   const principalXml = await dav(
     ROOT,
@@ -61,7 +62,7 @@ async function discover(): Promise<Cal[]> {
     '0'
   )
   const principal = hrefInside(principalXml, 'current-user-principal')
-  if (!principal) throw new Error('Could not find your iCloud account.')
+  if (!principal) throw new Error(t('icloud.noAccount'))
   const principalUrl = new URL(principal, ROOT).toString()
 
   const homeXml = await dav(
@@ -71,7 +72,7 @@ async function discover(): Promise<Cal[]> {
     '0'
   )
   const home = hrefInside(homeXml, 'calendar-home-set')
-  if (!home) throw new Error('Could not find your iCloud calendars.')
+  if (!home) throw new Error(t('icloud.noCalendars'))
   const homeUrl = new URL(home, principalUrl).toString()
 
   const listXml = await dav(
@@ -92,7 +93,7 @@ async function discover(): Promise<Cal[]> {
     const name = /<[^>]*displayname[^>]*>([^<]*)<\/[^>]*displayname>/i.exec(block)
     cals.push({
       url: new URL(href[1].trim(), homeUrl).toString(),
-      name: (name?.[1] ?? 'Calendar').trim()
+      name: (name?.[1] ?? t('icloud.fallbackCalendar')).trim()
     })
   }
   calendars = cals
@@ -120,7 +121,7 @@ function parseIcs(ics: string, out: UpcomingEvent[]): void {
       const start = ev.startDate.toJSDate().getTime()
       out.push({
         id: `icloud:${ev.uid || ''}:${start}`,
-        title: ev.summary || 'Untitled event',
+        title: ev.summary || t('event.untitled'),
         start
       })
     }
@@ -139,7 +140,7 @@ export function status(): ProviderStatus {
   loadCreds()
   return {
     id: 'icloud',
-    name: 'iCloud',
+    name: t('calendar.icloud.name'),
     connected: !!creds,
     detail: creds?.username ?? null,
     configured: true
@@ -151,7 +152,7 @@ export async function connect(username: string, password: string): Promise<void>
   calendars = null
   if (!creds.username || !creds.password) {
     creds = null
-    throw new Error('Enter your Apple ID and an app-specific password.')
+    throw new Error(t('icloud.enterCreds'))
   }
   try {
     await discover() // validates the credentials (401 if wrong)

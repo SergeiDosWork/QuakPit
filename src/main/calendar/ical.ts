@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import ICAL from 'ical.js'
 import { loadIcalFeeds, saveIcalFeeds } from '../store'
+import { t, tPlural } from '../i18n'
 import type { ProviderStatus, UpcomingEvent } from './types'
 
 export type Feed = { id: string; name: string; url: string }
@@ -25,11 +26,11 @@ function persist(): void {
 /** Accepts http(s) and webcal:// links; returns the .ics text (and validates it). */
 async function fetchFeed(url: string): Promise<string> {
   const normalized = url.trim().replace(/^webcal:\/\//i, 'https://')
-  if (!/^https?:\/\//i.test(normalized)) throw new Error('Enter a valid calendar link (https or webcal).')
+  if (!/^https?:\/\//i.test(normalized)) throw new Error(t('ical.invalidLink'))
   const res = await fetch(normalized, { redirect: 'follow', cache: 'no-store' })
-  if (!res.ok) throw new Error(`Could not fetch the calendar (${res.status}).`)
+  if (!res.ok) throw new Error(t('ical.fetchFailed', { status: res.status }))
   const text = await res.text()
-  if (!/BEGIN:VCALENDAR/i.test(text)) throw new Error('That link is not an iCal (.ics) calendar.')
+  if (!/BEGIN:VCALENDAR/i.test(text)) throw new Error(t('ical.notIcal'))
   return text
 }
 
@@ -44,7 +45,7 @@ function collect(ics: string, nowMs: number, endMs: number, out: UpcomingEvent[]
     try {
       const ev = new ICAL.Event(ve)
       if (!ev.startDate || ev.startDate.isDate) continue // skip all-day
-      const title = ev.summary || 'Untitled event'
+      const title = ev.summary || t('event.untitled')
       const uid = ev.uid || ''
       if (ev.isRecurring()) {
         const it = ev.iterator()
@@ -76,9 +77,9 @@ export function status(): ProviderStatus {
   const n = load().length
   return {
     id: 'ical',
-    name: 'Calendar links',
+    name: t('calendar.ical.name'),
     connected: n > 0,
-    detail: n ? `${n} calendar${n > 1 ? 's' : ''}` : null,
+    detail: n ? tPlural('ical.feeds', n) : null,
     configured: true
   }
 }
@@ -92,7 +93,7 @@ export async function addFeed(url: string, name?: string): Promise<Feed[]> {
   let nm = (name ?? '').trim()
   if (!nm) {
     const m = /X-WR-CALNAME:(.+)/i.exec(ics)
-    nm = m ? m[1].trim().slice(0, 60) : 'Calendar'
+    nm = m ? m[1].trim().slice(0, 60) : t('ical.fallbackName')
   }
   const list = load()
   list.push({ id: randomUUID(), name: nm, url: url.trim() })

@@ -1,24 +1,26 @@
 // Pure EWS helpers (no Electron/network imports) — unit-testable via ews.test.ts.
 // Exchange on-premises exposes its calendar over SOAP ("Exchange Web Services"):
 // a FindItem request with a CalendarView against the distinguished "calendar" folder.
+import { createI18n, type Locale } from '../../shared/i18n'
 
 export type ExchangeEvent = { id: string; title: string; start: number }
 
 const EWS_PATH = '/EWS/Exchange.asmx'
 
 /** Normalizes whatever the user typed into a full EWS endpoint URL (https only). */
-export function normalizeServerUrl(raw: string): string {
+export function normalizeServerUrl(raw: string, locale: Locale = 'en'): string {
+  const i18n = createI18n(locale)
   const trimmed = raw.trim()
-  if (!trimmed) throw new Error('Enter your Exchange server address.')
+  if (!trimmed) throw new Error(i18n.t('ews.enterAddress'))
   const withScheme = /^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`
   let url: URL
   try {
     url = new URL(withScheme)
   } catch {
-    throw new Error('That does not look like a server address.')
+    throw new Error(i18n.t('ews.badAddress'))
   }
   if (url.protocol !== 'https:') {
-    throw new Error('Use an https:// address — your password is sent to this server.')
+    throw new Error(i18n.t('ews.useHttps'))
   }
   if (/exchange\.asmx\/?$/i.test(url.pathname)) {
     url.pathname = url.pathname.replace(/\/$/, '')
@@ -92,7 +94,8 @@ function insideTag(xml: string, tag: string): string | null {
 }
 
 /** Extracts upcoming calendar items from a FindItem + CalendarView response. */
-export function parseFindItemResponse(xml: string): ExchangeEvent[] {
+export function parseFindItemResponse(xml: string, locale: Locale = 'en'): ExchangeEvent[] {
+  const i18n = createI18n(locale)
   const events: ExchangeEvent[] = []
   const re = /<[^>]*:?CalendarItem[^>]*>([\s\S]*?)<\/[^>]*:?CalendarItem>/gi
   let m: RegExpExecArray | null
@@ -104,7 +107,7 @@ export function parseFindItemResponse(xml: string): ExchangeEvent[] {
     const ts = Date.parse(decodeEntities(start.trim()))
     if (Number.isNaN(ts)) continue
     const subject = insideTag(block, 'Subject')
-    const title = subject ? decodeEntities(subject.trim()) : 'Untitled event'
+    const title = subject ? decodeEntities(subject.trim()) : i18n.t('event.untitled')
     events.push({ id: `exchange:${id}`, title, start: ts })
   }
   return events

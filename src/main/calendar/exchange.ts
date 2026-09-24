@@ -12,6 +12,7 @@ import {
   pickAuthScheme,
   splitUsername
 } from './ews'
+import { currentLocale, t } from '../i18n'
 import type { ProviderStatus, UpcomingEvent } from './types'
 
 const TIMEOUT_MS = 15_000
@@ -54,11 +55,9 @@ async function postBasic(c: ExchangeConfig, body: string): Promise<RawResponse> 
     })
   } catch (e) {
     if ((e as Error).name === 'TimeoutError') {
-      throw new Error('The Exchange server did not respond in time.')
+      throw new Error(t('exchange.timeout'))
     }
-    throw new Error(
-      'Cannot reach the Exchange server (network, VPN or untrusted certificate).'
-    )
+    throw new Error(t('exchange.unreachable'))
   }
   return { status: res.status, wwwAuthenticate: res.headers.get('www-authenticate'), text: await res.text() }
 }
@@ -80,9 +79,7 @@ async function postViaNtlm(c: ExchangeConfig, body: string): Promise<string> {
       },
       (err, r) => {
         if (err) {
-          reject(
-            new Error('Cannot reach the Exchange server (network, VPN or untrusted certificate).')
-          )
+          reject(new Error(t('exchange.unreachable')))
         } else {
           resolve(r.body)
         }
@@ -92,18 +89,18 @@ async function postViaNtlm(c: ExchangeConfig, body: string): Promise<string> {
 }
 
 function describeStatus(status: number): string {
-  if (status === 401) return 'The server rejected the login. Check your username and password.'
-  if (status === 403) return 'Access denied — EWS may be disabled for your account by your administrator.'
-  if (status === 404) return 'EWS not found at this address. Check the server address with IT.'
-  return `Exchange error (${status}).`
+  if (status === 401) return t('exchange.status401')
+  if (status === 403) return t('exchange.status403')
+  if (status === 404) return t('exchange.status404')
+  return t('exchange.generic', { status })
 }
 
 function httpStatusError(res: RawResponse): Error {
   if (res.status === 401) {
     if (pickAuthScheme(res.wwwAuthenticate) === 'none') {
-      return new Error('The server offered no supported login method (Basic or NTLM).')
+      return new Error(t('exchange.noAuthMethod'))
     }
-    return new Error('Wrong username, password or domain.')
+    return new Error(t('exchange.wrongCreds'))
   }
   return new Error(describeStatus(res.status))
 }
@@ -134,7 +131,7 @@ export function status(): ProviderStatus {
   loadCreds()
   return {
     id: 'exchange',
-    name: 'Exchange',
+    name: t('calendar.exchange.name'),
     connected: !!creds,
     detail: creds?.username ?? null,
     configured: true
@@ -146,11 +143,11 @@ export async function connect(params: {
   username?: string
   password?: string
 }): Promise<void> {
-  const serverUrl = normalizeServerUrl(params.serverUrl ?? '')
+  const serverUrl = normalizeServerUrl(params.serverUrl ?? '', currentLocale())
   const username = (params.username ?? '').trim()
   const password = params.password ?? ''
   if (!username || !password) {
-    throw new Error('Enter the server address, your username and your password.')
+    throw new Error(t('exchange.enterAll'))
   }
   const candidate: ExchangeConfig = { serverUrl, username, password, auth: 'basic' }
   const now = Date.now()
@@ -159,10 +156,7 @@ export async function connect(params: {
   try {
     await postEws(candidate, probe)
   } catch {
-    throw new Error(
-      'Could not connect: check the server address, your username and password. ' +
-        'If EWS is disabled by your administrator, Quakpit cannot read this calendar.'
-    )
+    throw new Error(t('exchange.connectFailed'))
   }
   creds = candidate
   persist(creds)
@@ -184,7 +178,7 @@ export async function listUpcoming(minutes = 60): Promise<UpcomingEvent[]> {
   if (!wasNtlm && creds.auth === 'ntlm') persist(creds) // the NTLM upgrade worked — save it once
   const err = findItemError(body)
   if (err) throw new Error(err)
-  return parseFindItemResponse(body)
+  return parseFindItemResponse(body, currentLocale())
     .filter((e) => e.start > now && e.start <= now + minutes * 60_000)
     .sort((a, b) => a.start - b.start)
 }
