@@ -26,10 +26,9 @@ const IMAGE_MIME: Record<string, string> = {
 const FREE_CAL_MSG =
   'The free plan supports one calendar. Upgrade to Quakpit Pro to add more calendars.'
 
-/** How many calendars are connected across all providers (iCal feeds + iCloud). */
+/** How many calendars are connected across all providers (iCal feeds + account providers). */
 function calendarCount(): number {
-  const icloud = calendar.statuses().find((s) => s.id === 'icloud')?.connected ? 1 : 0
-  return calendar.icalFeeds().length + icloud
+  return calendar.icalFeeds().length + calendar.statuses().filter((s) => s.connected).length
 }
 
 /** Wires the settings renderer to the main process. */
@@ -55,9 +54,11 @@ export function registerIpc(): void {
 
   ipcMain.handle(
     'cal:connect',
-    async (_e, provider: string, params: { username?: string; password?: string }) => {
-      // Free plan = a single calendar. Block a 2nd source (allow reconnecting iCloud).
-      if (!license.isPremium() && calendar.icalFeeds().length >= 1) throw new Error(FREE_CAL_MSG)
+    async (_e, provider: string, params: { username?: string; password?: string; serverUrl?: string }) => {
+      // Free plan = a single calendar. Reconnecting the same source is still allowed.
+      const statuses = calendar.statuses()
+      const same = statuses.find((s) => s.id === provider)?.connected ?? false
+      if (!license.isPremium() && calendarCount() >= 1 && !same) throw new Error(FREE_CAL_MSG)
       const s = await calendar.connect(provider, params ?? {})
       startScheduler()
       return s

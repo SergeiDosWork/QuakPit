@@ -89,8 +89,10 @@ pvProp.src = BLADE_URL
 const calPicker = $('cal-picker')
 const wizIcal = $('wiz-ical')
 const wizIcloud = $('wiz-icloud')
+const wizExchange = $('wiz-exchange')
 const pickIcalStatus = $('pick-ical-status')
 const pickIcloudStatus = $('pick-icloud-status')
+const pickExchangeStatus = $('pick-exchange-status')
 const upcomingList = $<HTMLUListElement>('upcoming')
 const upcomingRefresh = $<HTMLButtonElement>('upcoming-refresh')
 // iCal-link wizard
@@ -108,6 +110,16 @@ const iConnect = $<HTMLButtonElement>('i-connect')
 const iDisconnect = $<HTMLButtonElement>('i-disconnect')
 const iDetail = $('i-detail')
 const iError = $('i-error')
+// Exchange wizard
+const xStepForm = $('x-step-form')
+const xStepConnected = $('x-step-connected')
+const xServer = $<HTMLInputElement>('x-server')
+const xUser = $<HTMLInputElement>('x-user')
+const xPass = $<HTMLInputElement>('x-pass')
+const xConnect = $<HTMLButtonElement>('x-connect')
+const xDisconnect = $<HTMLButtonElement>('x-disconnect')
+const xDetail = $('x-detail')
+const xError = $('x-error')
 
 const planBadge = $('plan-badge')
 const licenseLine = $('license-line')
@@ -424,6 +436,7 @@ const show = (el: HTMLElement): void => el.classList.remove('hidden')
 function renderCalendar(statuses: ProviderStatus[]): void {
   const ic = statuses.find((s) => s.id === 'ical')
   const i = statuses.find((s) => s.id === 'icloud')
+  const x = statuses.find((s) => s.id === 'exchange')
 
   pickIcalStatus.textContent = ic?.connected ? (ic.detail ?? 'Connected') : 'Not connected'
   pickIcalStatus.classList.toggle('connected', !!ic?.connected)
@@ -433,6 +446,12 @@ function renderCalendar(statuses: ProviderStatus[]): void {
       : 'Connected'
     : 'Not connected'
   pickIcloudStatus.classList.toggle('connected', !!i?.connected)
+  pickExchangeStatus.textContent = x?.connected
+    ? x.detail
+      ? `Connected · ${x.detail}`
+      : 'Connected'
+    : 'Not connected'
+  pickExchangeStatus.classList.toggle('connected', !!x?.connected)
 
   // iCloud wizard: form → connected
   if (i?.connected) {
@@ -442,6 +461,16 @@ function renderCalendar(statuses: ProviderStatus[]): void {
   } else {
     show(iStepForm)
     hide(iStepConnected)
+  }
+
+  // Exchange wizard: form → connected
+  if (x?.connected) {
+    xDetail.textContent = x.detail ?? ''
+    hide(xStepForm)
+    show(xStepConnected)
+  } else {
+    show(xStepForm)
+    hide(xStepConnected)
   }
 }
 
@@ -521,13 +550,16 @@ function showPicker(): void {
   show(calPicker)
   hide(wizIcal)
   hide(wizIcloud)
+  hide(wizExchange)
 }
 async function openWizard(provider: string): Promise<void> {
   hide(calPicker)
   hide(icalError)
   hide(iError)
+  hide(xError)
   wizIcal.classList.toggle('hidden', provider !== 'ical')
   wizIcloud.classList.toggle('hidden', provider !== 'icloud')
+  wizExchange.classList.toggle('hidden', provider !== 'exchange')
   if (provider === 'ical') renderFeeds(await q.icalList())
 }
 document.querySelectorAll<HTMLElement>('.provider-btn').forEach((b) =>
@@ -577,6 +609,34 @@ iConnect.addEventListener('click', async () => {
 })
 iDisconnect.addEventListener('click', async () => {
   renderCalendar(await q.calDisconnect('icloud'))
+  renderUpcoming([], false)
+})
+
+// Exchange wizard
+xConnect.addEventListener('click', async () => {
+  hide(xError)
+  xConnect.disabled = true
+  xConnect.textContent = 'Connecting…'
+  try {
+    renderCalendar(
+      await q.calConnect('exchange', {
+        serverUrl: xServer.value,
+        username: xUser.value,
+        password: xPass.value
+      })
+    )
+    xPass.value = ''
+    renderUpcoming(await q.upcoming(), true)
+  } catch (e) {
+    xError.textContent = (e as Error).message
+    show(xError)
+  } finally {
+    xConnect.disabled = false
+    xConnect.textContent = 'Connect'
+  }
+})
+xDisconnect.addEventListener('click', async () => {
+  renderCalendar(await q.calDisconnect('exchange'))
   renderUpcoming([], false)
 })
 

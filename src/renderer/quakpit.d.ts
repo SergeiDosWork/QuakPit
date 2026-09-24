@@ -55,7 +55,7 @@ declare global {
     calStatus: () => Promise<ProviderStatus[]>
     calConnect: (
       provider: string,
-      params?: { username?: string; password?: string }
+      params?: { username?: string; password?: string; serverUrl?: string }
     ) => Promise<ProviderStatus[]>
     calDisconnect: (provider: string) => Promise<ProviderStatus[]>
     calConfigure: (

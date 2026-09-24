@@ -49,6 +49,7 @@ const prefsPath = (): string => join(dataDir(), 'prefs.json')
 const tokenPath = (): string => join(dataDir(), 'token.bin')
 const licensePath = (): string => join(dataDir(), 'license.bin')
 const icloudPath = (): string => join(dataDir(), 'icloud.bin')
+const exchangePath = (): string => join(dataDir(), 'exchange.bin')
 const googleCredsPath = (): string => join(dataDir(), 'google-creds.bin')
 const icalPath = (): string => join(dataDir(), 'ical-feeds.bin')
 // The user's own plane image, kept as a ready-to-render data URL (not sensitive).
@@ -161,6 +162,34 @@ export function loadICloud(): string | null {
 export function clearICloud(): void {
   try {
     if (existsSync(icloudPath())) rmSync(icloudPath())
+  } catch {
+    /* ignore */
+  }
+}
+
+// --- Exchange (on-prem) credentials: EWS endpoint + Windows login, encrypted ---
+
+export function saveExchange(json: string): void {
+  try {
+    if (!safeStorage.isEncryptionAvailable()) return
+    writeFileSync(exchangePath(), safeStorage.encryptString(json))
+  } catch {
+    /* ignore */
+  }
+}
+
+export function loadExchange(): string | null {
+  try {
+    if (!existsSync(exchangePath()) || !safeStorage.isEncryptionAvailable()) return null
+    return safeStorage.decryptString(readFileSync(exchangePath()))
+  } catch {
+    return null
+  }
+}
+
+export function clearExchange(): void {
+  try {
+    if (existsSync(exchangePath())) rmSync(exchangePath())
   } catch {
     /* ignore */
   }
