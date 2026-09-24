@@ -20,22 +20,22 @@
         <nav class="nav">
           <button class="nav-item active" data-tab="general">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="12" x2="9" y2="12"/><line x1="21" y1="18" x2="15" y2="18"/><circle cx="17" cy="6" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="11" cy="18" r="2"/></svg>
-            General
+            <span data-i18n="settings.tab.general">General</span>
           </button>
           <button class="nav-item" data-tab="appearance">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3"/></svg>
-            Appearance
+            <span data-i18n="settings.tab.appearance">Appearance</span>
           </button>
           <button class="nav-item" data-tab="calendar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
-            Calendar
+            <span data-i18n="settings.tab.calendar">Calendar</span>
           </button>
         </nav>
 
         <div class="sidebar-foot">
-          <button id="test-btn" class="btn btn-outline btn-block">Send a test flight</button>
+          <button id="test-btn" class="btn btn-outline btn-block" data-i18n="settings.testFlight">Send a test flight</button>
           <a id="made-by" class="made-by" href="https://ooble.studio" rel="noopener">
-            Presented by <b>Ooble&nbsp;Studio</b>
+            <span data-i18n="settings.presentedBy">Presented by</span> <b>Ooble&nbsp;Studio</b>
           </a>
         </div>
       </aside>
@@ -43,27 +43,27 @@
       <main class="content">
         <!-- GENERAL -->
         <section class="panel active" data-panel="general">
-          <div class="panel-head"><h1>General</h1><p class="muted">When and how the duck flies by.</p></div>
+          <div class="panel-head"><h1 data-i18n="settings.tab.general">General</h1><p class="muted" data-i18n="settings.general.subtitle">When and how the duck flies by.</p></div>
 
           <!-- Reminders: timing + what the banner says -->
           <div class="card">
-            <div class="card-title">Reminders</div>
+            <div class="card-title" data-i18n="settings.reminders">Reminders</div>
             <div class="field field-col">
-              <div class="field-label"><span>Lead time</span><span class="hint">Fly this long before a meeting</span></div>
+              <div class="field-label"><span data-i18n="settings.lead.label">Lead time</span><span class="hint" data-i18n="settings.lead.hint">Fly this long before a meeting</span></div>
               <div id="lead" class="choices">
-                <button class="choice" data-value="5">5 min</button>
-                <button class="choice" data-value="15">15 min</button>
-                <button class="choice" data-value="30">30 min</button>
+                <button class="choice" data-value="5" data-i18n="settings.lead.5">5 min</button>
+                <button class="choice" data-value="15" data-i18n="settings.lead.15">15 min</button>
+                <button class="choice" data-value="30" data-i18n="settings.lead.30">30 min</button>
               </div>
             </div>
             <div class="sep"></div>
             <div class="switch-row">
-              <div class="field-label"><span>Fly again at meeting time</span><span class="hint">A second fly-by right when it starts</span></div>
+              <div class="field-label"><span data-i18n="settings.flyAtStart.label">Fly again at meeting time</span><span class="hint" data-i18n="settings.flyAtStart.hint">A second fly-by right when it starts</span></div>
               <label class="switch"><input id="flyatstart" type="checkbox" /><span class="track"><span class="thumb"></span></span></label>
             </div>
             <div class="sep"></div>
             <div class="field field-col">
-              <div class="field-label"><span>Banner message</span><span class="hint">Tap a tag to insert it</span></div>
+              <div class="field-label"><span data-i18n="settings.banner.label">Banner message</span><span class="hint" data-i18n="settings.banner.hint">Tap a tag to insert it</span></div>
               <input id="template" class="input" type="text" />
               <div class="tag-row">
                 <button class="tag-btn" data-token="{title}">title</button>
@@ -74,9 +74,9 @@
 
           <!-- Flight: how it crosses the screen -->
           <div class="card">
-            <div class="card-title">Flight</div>
+            <div class="card-title" data-i18n="settings.flight">Flight</div>
             <div class="field field-col">
-              <div class="field-label"><span>Speed</span><span class="hint">How fast the plane crosses the screen</span></div>
+              <div class="field-label"><span data-i18n="settings.speed.label">Speed</span><span class="hint" data-i18n="settings.speed.hint">How fast the plane crosses the screen</span></div>
               <div id="speed" class="choices">
                 <button class="choice" data-value="normal">×1</button>
                 <button class="choice" data-value="fast">×1.5</button>
@@ -85,10 +85,10 @@
             </div>
             <div class="sep"></div>
             <div class="field">
-              <div class="field-label"><span>Show on</span><span class="hint">Which screen the plane uses</span></div>
+              <div class="field-label"><span data-i18n="settings.display.label">Show on</span><span class="hint" data-i18n="settings.display.hint">Which screen the plane uses</span></div>
               <select id="display" class="select">
-                <option value="cursor">Screen with my cursor</option>
-                <option value="primary">My main screen</option>
+                <option value="cursor" data-i18n="settings.display.cursor">Screen with my cursor</option>
+                <option value="primary" data-i18n="settings.display.primary">My main screen</option>
               </select>
             </div>
           </div>
@@ -96,31 +96,40 @@
           <!-- Startup / system -->
           <div class="card">
             <div class="switch-row">
-              <div class="field-label"><span>Launch at login</span><span class="hint">Start Quakpit when you sign in</span></div>
+              <div class="field-label"><span data-i18n="settings.launch.label">Launch at login</span><span class="hint" data-i18n="settings.launch.hint">Start Quakpit when you sign in</span></div>
               <label class="switch"><input id="login" type="checkbox" /><span class="track"><span class="thumb"></span></span></label>
             </div>
             <div class="sep"></div>
             <div class="switch-row">
-              <div class="field-label"><span>Hide Dock icon</span><span class="hint">Menu-bar-only app — reopen Quakpit from the tray icon</span></div>
+              <div class="field-label"><span data-i18n="settings.hideDock.label">Hide Dock icon</span><span class="hint" data-i18n="settings.hideDock.hint">Menu-bar-only app — reopen Quakpit from the tray icon</span></div>
               <label class="switch"><input id="hide-dock" type="checkbox" /><span class="track"><span class="thumb"></span></span></label>
             </div>
             <div class="sep"></div>
             <div class="switch-row">
-              <div class="field-label"><span>Stay signed in</span><span class="hint">Store the calendar token (encrypted)</span></div>
+              <div class="field-label"><span data-i18n="settings.stay.label">Stay signed in</span><span class="hint" data-i18n="settings.stay.hint">Store the calendar token (encrypted)</span></div>
               <label class="switch"><input id="stay" type="checkbox" /><span class="track"><span class="thumb"></span></span></label>
+            </div>
+            <div class="sep"></div>
+            <div class="field">
+              <div class="field-label"><span data-i18n="settings.language.label">Language</span><span class="hint" data-i18n="settings.language.hint">Applies immediately, no restart needed</span></div>
+              <select id="lang" class="select">
+                <option value="auto" data-i18n="settings.language.auto">Auto — system language</option>
+                <option value="ru">Русский</option>
+                <option value="en">English</option>
+              </select>
             </div>
           </div>
         </section>
 
         <!-- APPEARANCE -->
         <section class="panel" data-panel="appearance">
-          <div class="panel-head"><h1>Appearance</h1><p class="muted">Make Quakpit yours.</p></div>
+          <div class="panel-head"><h1 data-i18n="settings.tab.appearance">Appearance</h1><p class="muted" data-i18n="settings.appearance.subtitle">Make Quakpit yours.</p></div>
 
           <!-- Live preview: the plane flies in place, clouds drift, no sound -->
           <div id="appearance-preview" class="sky">
             <div class="clouds"></div>
             <div class="preview-rig">
-              <div class="banner"><span id="preview-text">Meeting in 5 minutes</span></div>
+              <div class="banner"><span id="preview-text" data-i18n="settings.preview.banner">Meeting in 5 minutes</span></div>
               <div class="rope"></div>
               <div class="aircraft">
                 <img class="plane" alt="" />
@@ -146,20 +155,20 @@
 
           <!-- Mini category nav -->
           <div class="subnav" role="tablist">
-            <button class="subnav-item active" data-sub="flier">Flier</button>
-            <button class="subnav-item" data-sub="banner">Banner</button>
-            <button class="subnav-item" data-sub="typo">Typo</button>
-            <button class="subnav-item" data-sub="sound">Sound</button>
+            <button class="subnav-item active" data-sub="flier" data-i18n="settings.sub.flier">Flier</button>
+            <button class="subnav-item" data-sub="banner" data-i18n="settings.sub.banner">Banner</button>
+            <button class="subnav-item" data-sub="typo" data-i18n="settings.sub.typo">Typo</button>
+            <button class="subnav-item" data-sub="sound" data-i18n="settings.sub.sound">Sound</button>
           </div>
 
           <!-- Flier -->
           <div class="subpanel active" data-sub="flier">
             <div class="card">
-              <div class="card-title">Flier</div>
-              <p class="muted small">Pick a head, then a plane colour.</p>
-              <div class="group-label"><span>Head</span></div>
+              <div class="card-title" data-i18n="settings.sub.flier">Flier</div>
+              <p class="muted small" data-i18n="settings.flier.hint">Pick a head, then a plane colour.</p>
+              <div class="group-label"><span data-i18n="settings.flier.head">Head</span></div>
               <div id="heads" class="swatch-grid"></div>
-              <div class="group-label" style="margin-top:16px"><span>Plane colour</span></div>
+              <div class="group-label" style="margin-top:16px"><span data-i18n="settings.flier.color">Plane colour</span></div>
               <div id="colors" class="swatch-grid"></div>
             </div>
           </div>
@@ -167,8 +176,8 @@
           <!-- Banner -->
           <div class="subpanel" data-sub="banner">
             <div class="card">
-              <div class="card-title">Banner theme</div>
-              <p class="muted small">Stripe colours of the towed banner.</p>
+              <div class="card-title" data-i18n="settings.bannerTheme">Banner theme</div>
+              <p class="muted small" data-i18n="settings.bannerTheme.hint">Stripe colours of the towed banner.</p>
               <div id="themes" class="swatch-grid"></div>
             </div>
           </div>
@@ -176,8 +185,8 @@
           <!-- Typo -->
           <div class="subpanel" data-sub="typo">
             <div class="card">
-              <div class="card-title">Typography</div>
-              <p class="muted small">Banner font.</p>
+              <div class="card-title" data-i18n="settings.typography">Typography</div>
+              <p class="muted small" data-i18n="settings.typography.hint">Banner font.</p>
               <div id="fonts" class="swatch-grid"></div>
             </div>
           </div>
@@ -185,13 +194,13 @@
           <!-- Sound -->
           <div class="subpanel" data-sub="sound">
             <div class="card">
-              <div class="card-title">Sound</div>
+              <div class="card-title" data-i18n="settings.sub.sound">Sound</div>
               <div class="switch-row">
-                <div class="field-label"><span>Engine sound</span><span class="hint">Engine + sound while it flies</span></div>
+                <div class="field-label"><span data-i18n="settings.engine.label">Engine sound</span><span class="hint" data-i18n="settings.engine.hint">Engine + sound while it flies</span></div>
                 <label class="switch"><input id="sound" type="checkbox" /><span class="track"><span class="thumb"></span></span></label>
               </div>
               <div class="sep"></div>
-              <div class="group-label"><span>Flight sound</span><span class="hint">Follows your animal — tap to preview</span></div>
+              <div class="group-label"><span data-i18n="settings.flightSound.label">Flight sound</span><span class="hint" data-i18n="settings.flightSound.hint">Follows your animal — tap to preview</span></div>
               <div id="sounds" class="swatch-grid"></div>
             </div>
           </div>
@@ -199,7 +208,7 @@
 
         <!-- CALENDAR -->
         <section class="panel" data-panel="calendar">
-          <div class="panel-head"><h1>Calendar</h1><p class="muted">Read on this device only — never sent anywhere.</p></div>
+          <div class="panel-head"><h1 data-i18n="settings.tab.calendar">Calendar</h1><p class="muted" data-i18n="settings.calendar.subtitle">Read on this device only — never sent anywhere.</p></div>
 
           <!-- Provider picker -->
           <div id="cal-picker">
@@ -208,15 +217,7 @@
                 <span class="provider-ico">
                   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1.5-1.5"/></svg>
                 </span>
-                <span class="provider-meta"><span class="provider-name">Add by link <span class="reco">easiest</span></span><span id="pick-ical-status" class="provider-state">Not connected</span></span>
-                <span class="chev">›</span>
-              </button>
-
-              <button class="provider-btn" data-go="icloud">
-                <span class="provider-ico">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M16.4 1.4c0 1.1-.4 2.1-1.2 3-.9 1-2 1.6-3.1 1.5-.1-1.1.4-2.2 1.2-3C14.1 2 15.3 1.4 16.4 1.4zM20 17.2c-.5 1.2-.8 1.7-1.5 2.8-1 1.5-2.4 3.4-4.1 3.4-1.5 0-1.9-1-4-1-2 0-2.5 1-4 1-1.7 0-3-1.7-4-3.2-2.9-4.2-3.2-9.7-1-12.6C2.6 6.9 4.4 6 6.1 6c1.6 0 2.6 1 4 1 1.3 0 2.1-1 4-1 1.4 0 2.9.8 4 2.1-3.5 1.9-3 6.9.9 8.1z"/></svg>
-                </span>
-                <span class="provider-meta"><span class="provider-name">Apple iCloud</span><span id="pick-icloud-status" class="provider-state">Not connected</span></span>
+                <span class="provider-meta"><span class="provider-name"><span data-i18n="settings.provider.byLink">Add by link</span> <span class="reco" data-i18n="settings.badge.easiest">easiest</span></span><span id="pick-ical-status" class="provider-state">Not connected</span></span>
                 <span class="chev">›</span>
               </button>
 
@@ -240,8 +241,8 @@
                 <span class="provider-ico">
                   <svg viewBox="0 0 48 48" width="22" height="22"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.5 29.5 4.5 24 4.5 13.2 4.5 4.5 13.2 4.5 24S13.2 43.5 24 43.5 43.5 34.8 43.5 24c0-1.2-.1-2.3-.3-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.5 29.5 4.5 24 4.5 16.3 4.5 9.7 8.9 6.3 14.7z"/><path fill="#4CAF50" d="M24 43.5c5.4 0 10.3-2 14-5.3l-6.5-5.5C29.6 34.5 26.9 35.5 24 35.5c-5.2 0-9.6-3.3-11.3-8l-6.6 5.1C9.5 39 16.2 43.5 24 43.5z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.5 5.5c-.5.4 7-5.1 7-14.6 0-1.2-.1-2.3-.4-3.5z"/></svg>
                 </span>
-                <span class="provider-meta"><span class="provider-name">Google Calendar</span><span class="provider-state">Sign-in coming soon</span></span>
-                <span class="soon">Soon</span>
+                <span class="provider-meta"><span class="provider-name">Google Calendar</span><span class="provider-state" data-i18n="settings.provider.googleSoon">Sign-in coming soon</span></span>
+                <span class="soon" data-i18n="settings.badge.soon">Soon</span>
               </button>
             </div>
 
@@ -249,61 +250,61 @@
               <div class="next-up-head">
                 <span class="next-up-title">
                   <svg class="next-up-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/></svg>
-                  Next up
+                  <span data-i18n="settings.nextUp">Next up</span>
                 </span>
-                <button id="upcoming-refresh" class="icon-btn" title="Re-check your calendars now" aria-label="Refresh">
+                <button id="upcoming-refresh" class="icon-btn" title="Re-check your calendars now" aria-label="Refresh" data-i18n-title="settings.nextUp.refreshTitle">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
                 </button>
               </div>
-              <ul id="upcoming" class="upcoming"><li class="up-empty">Connect a calendar to see your meetings.</li></ul>
+              <ul id="upcoming" class="upcoming"><li class="up-empty" data-i18n="settings.upcoming.connect">Connect a calendar to see your meetings.</li></ul>
             </div>
 
-            <p class="privacy">🔒 Everything stays on this device. Quakpit has no server.</p>
+            <p class="privacy" data-i18n="settings.privacy">🔒 Everything stays on this device. Quakpit has no server.</p>
           </div>
 
           <!-- iCal-link wizard -->
           <div id="wiz-ical" class="hidden">
-            <button class="back" data-back>‹ Back</button>
-            <h2 class="wiz-title">Add a calendar by link</h2>
+            <button class="back" data-back data-i18n="settings.back">‹ Back</button>
+            <h2 class="wiz-title" data-i18n="settings.ical.title">Add a calendar by link</h2>
 
             <div class="card">
-              <div class="card-title">Paste a calendar link (iCal / .ics)</div>
+              <div class="card-title" data-i18n="settings.ical.cardTitle">Paste a calendar link (iCal / .ics)</div>
               <ol class="steps-list">
-                <li>Google Calendar (web): your calendar → <b>Settings and sharing</b> → <b>Integrate calendar</b> → copy <b>Secret address in iCal format</b>.</li>
-                <li>Outlook / Fastmail / others: look for <b>Publish</b> or an <b>iCal/ICS</b> link.</li>
-                <li>Paste it below — add as many calendars as you like.</li>
+                <li data-i18n-html="settings.ical.step1">Google Calendar (web): your calendar → <b>Settings and sharing</b> → <b>Integrate calendar</b> → copy <b>Secret address in iCal format</b>.</li>
+                <li data-i18n-html="settings.ical.step2">Outlook / Fastmail / others: look for <b>Publish</b> or an <b>iCal/ICS</b> link.</li>
+                <li data-i18n-html="settings.ical.step3">Paste it below — add as many calendars as you like.</li>
               </ol>
-              <label class="stack"><span>Calendar link</span><input id="ical-url" class="input" type="text" placeholder="https://…/basic.ics  (or webcal://…)" /></label>
-              <label class="stack"><span>Name (optional)</span><input id="ical-name" class="input" type="text" placeholder="Work" /></label>
-              <div class="row" style="margin-top:12px"><button id="ical-add" class="btn btn-primary">Add calendar</button></div>
+              <label class="stack"><span data-i18n="settings.ical.linkLabel">Calendar link</span><input id="ical-url" class="input" type="text" placeholder="https://…/basic.ics  (or webcal://…)" data-i18n-placeholder="settings.ical.urlPlaceholder" /></label>
+              <label class="stack"><span data-i18n="settings.ical.nameLabel">Name (optional)</span><input id="ical-name" class="input" type="text" placeholder="Work" data-i18n-placeholder="settings.ical.namePlaceholder" /></label>
+              <div class="row" style="margin-top:12px"><button id="ical-add" class="btn btn-primary" data-i18n="settings.ical.add">Add calendar</button></div>
               <p id="ical-error" class="warn hidden" style="margin-top:8px"></p>
             </div>
 
             <div class="card">
-              <div class="card-title">Your calendar links</div>
-              <ul id="ical-feeds" class="feed-list"><li class="muted">None yet.</li></ul>
+              <div class="card-title" data-i18n="settings.ical.feedsTitle">Your calendar links</div>
+              <ul id="ical-feeds" class="feed-list"><li class="muted" data-i18n="settings.ical.none">None yet.</li></ul>
             </div>
           </div>
 
           <!-- iCloud wizard -->
           <div id="wiz-icloud" class="hidden">
-            <button class="back" data-back>‹ Back</button>
-            <h2 class="wiz-title">Connect Apple iCloud</h2>
+            <button class="back" data-back data-i18n="settings.back">‹ Back</button>
+            <h2 class="wiz-title" data-i18n="settings.icloud.title">Connect Apple iCloud</h2>
 
             <div id="i-step-form" class="card">
-              <div class="card-title">Connect with an app-specific password</div>
+              <div class="card-title" data-i18n="settings.icloud.cardTitle">Connect with an app-specific password</div>
               <ol class="steps-list">
-                <li>Open <a href="https://appleid.apple.com" target="_blank" rel="noopener">appleid.apple.com</a> → Sign-In &amp; Security → <b>App-Specific Passwords</b> → generate one.</li>
-                <li>Enter your Apple ID and that password below.</li>
+                <li data-i18n-html="settings.icloud.step1">Open <a href="https://appleid.apple.com" target="_blank" rel="noopener">appleid.apple.com</a> → Sign-In &amp; Security → <b>App-Specific Passwords</b> → generate one.</li>
+                <li data-i18n="settings.icloud.step2">Enter your Apple ID and that password below.</li>
               </ol>
-              <label class="stack"><span>Apple ID</span><input id="i-user" class="input" type="email" placeholder="you@icloud.com" /></label>
-              <label class="stack"><span>App-specific password</span><input id="i-pass" class="input" type="password" placeholder="xxxx-xxxx-xxxx-xxxx" /></label>
-              <div class="row" style="margin-top:12px"><button id="i-connect" class="btn btn-primary">Connect</button></div>
+              <label class="stack"><span data-i18n="settings.icloud.appleId">Apple ID</span><input id="i-user" class="input" type="email" placeholder="you@icloud.com" /></label>
+              <label class="stack"><span data-i18n="settings.icloud.appPassword">App-specific password</span><input id="i-pass" class="input" type="password" placeholder="xxxx-xxxx-xxxx-xxxx" /></label>
+              <div class="row" style="margin-top:12px"><button id="i-connect" class="btn btn-primary" data-i18n="settings.action.connect">Connect</button></div>
             </div>
 
             <div id="i-step-connected" class="card hidden">
-              <p class="ok">✅ Connected · <span id="i-detail"></span></p>
-              <button id="i-disconnect" class="btn btn-outline">Disconnect</button>
+              <p class="ok"><span data-i18n="settings.state.connectedOk">✅ Connected</span> · <span id="i-detail"></span></p>
+              <button id="i-disconnect" class="btn btn-outline" data-i18n="settings.action.disconnect">Disconnect</button>
             </div>
 
             <p id="i-error" class="warn hidden"></p>
@@ -311,25 +312,25 @@
 
           <!-- Exchange wizard -->
           <div id="wiz-exchange" class="hidden">
-            <button class="back" data-back>‹ Back</button>
-            <h2 class="wiz-title">Connect Microsoft Exchange</h2>
+            <button class="back" data-back data-i18n="settings.back">‹ Back</button>
+            <h2 class="wiz-title" data-i18n="settings.exchange.title">Connect Microsoft Exchange</h2>
 
             <div id="x-step-form" class="card">
-              <div class="card-title">Connect to your company Exchange server</div>
+              <div class="card-title" data-i18n="settings.exchange.cardTitle">Connect to your company Exchange server</div>
               <ol class="steps-list">
-                <li>Ask IT for the EWS address — usually <b>https://mail.company.com/EWS/Exchange.asmx</b>.</li>
-                <li>Sign in with your Windows login, e.g. <b>CORP\jane</b> or <b>jane@corp.com</b>.</li>
-                <li>The server must be reachable — from the office network or VPN.</li>
+                <li data-i18n-html="settings.exchange.step1">Ask IT for the EWS address — usually <b>https://mail.company.com/EWS/Exchange.asmx</b>.</li>
+                <li data-i18n-html="settings.exchange.step2">Sign in with your Windows login, e.g. <b>CORP\jane</b> or <b>jane@corp.com</b>.</li>
+                <li data-i18n-html="settings.exchange.step3">The server must be reachable — from the office network or VPN.</li>
               </ol>
-              <label class="stack"><span>Server address</span><input id="x-server" class="input" type="text" placeholder="mail.company.com" /></label>
-              <label class="stack"><span>Username</span><input id="x-user" class="input" type="text" placeholder="CORP\jane" /></label>
-              <label class="stack"><span>Password</span><input id="x-pass" class="input" type="password" /></label>
-              <div class="row" style="margin-top:12px"><button id="x-connect" class="btn btn-primary">Connect</button></div>
+              <label class="stack"><span data-i18n="settings.exchange.server">Server address</span><input id="x-server" class="input" type="text" placeholder="mail.company.com" data-i18n-placeholder="settings.exchange.serverPlaceholder" /></label>
+              <label class="stack"><span data-i18n="settings.exchange.username">Username</span><input id="x-user" class="input" type="text" placeholder="CORP\jane" data-i18n-placeholder="settings.exchange.userPlaceholder" /></label>
+              <label class="stack"><span data-i18n="settings.exchange.password">Password</span><input id="x-pass" class="input" type="password" /></label>
+              <div class="row" style="margin-top:12px"><button id="x-connect" class="btn btn-primary" data-i18n="settings.action.connect">Connect</button></div>
             </div>
 
             <div id="x-step-connected" class="card hidden">
-              <p class="ok">✅ Connected · <span id="x-detail"></span></p>
-              <button id="x-disconnect" class="btn btn-outline">Disconnect</button>
+              <p class="ok"><span data-i18n="settings.state.connectedOk">✅ Connected</span> · <span id="x-detail"></span></p>
+              <button id="x-disconnect" class="btn btn-outline" data-i18n="settings.action.disconnect">Disconnect</button>
             </div>
 
             <p id="x-error" class="warn hidden"></p>

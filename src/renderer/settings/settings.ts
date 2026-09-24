@@ -4,8 +4,13 @@ import { FONTS, fontById } from '../fonts'
 import { SOUNDS, playSound } from '../sounds'
 import { planeUrl, planeBaseUrl, headUrl, headThumbUrl, BLADE_URL } from '../flier-assets'
 import logoUrl from '../logo.png'
+import { createI18n, resolveLocale, type I18n } from '../../shared/i18n'
+import { applyI18n } from './i18n-apply'
 
 const q = window.quakpit
+
+// Bound translator; replaced by applyLocale() when the language changes.
+let i18n: I18n = createI18n('en')
 const $ = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T
 
 // ---- Tabs ----------------------------------------------------------------
@@ -29,6 +34,7 @@ subItems.forEach((n) => n.addEventListener('click', () => showSub(n.dataset.sub 
 // ---- Elements ------------------------------------------------------------
 const template = $<HTMLInputElement>('template')
 const displaySel = $<HTMLSelectElement>('display')
+const langSel = $<HTMLSelectElement>('lang')
 const sound = $<HTMLInputElement>('sound')
 const login = $<HTMLInputElement>('login')
 const hideDock = $<HTMLInputElement>('hide-dock')
@@ -134,6 +140,7 @@ function fillPrefs(p: Prefs): void {
   prefs = p
   leadChoices.set(String(p.leadMinutes))
   template.value = p.messageTemplate
+  langSel.value = p.lang
   displaySel.value = p.targetDisplay
   sound.checked = p.soundEnabled
   login.checked = p.launchAtLogin
@@ -205,7 +212,7 @@ function renderHeads(): void {
       flierTile({
         img: headThumbUrl(h.id), // just the head, cropped → shows bigger
         fillClass: 'head-sample',
-        name: h.name,
+        name: i18n.t(`option.head.${h.id}`),
         selected: prefs.flierHead === h.id,
         onClick: () => pickHead(h.id)
       })
@@ -220,7 +227,7 @@ function renderColors(): void {
       flierTile({
         img: planeUrl(c.id), // just the plane (static blade)
         fillClass: 'plane-sample',
-        name: c.name,
+        name: i18n.t(`option.color.${c.id}`),
         selected: prefs.flierColor === c.id,
         onClick: () => pickColor(c.id)
       })
@@ -263,7 +270,7 @@ function renderSounds(): void {
     fill.innerHTML = SOUND_ICON
     const name = document.createElement('span')
     name.className = 'swatch-name'
-    name.textContent = s.name
+    name.textContent = i18n.t(`option.sound.${s.id}`)
     tile.append(fill, name)
     tile.addEventListener('click', () => {
       prefs.soundPack = s.id
@@ -297,7 +304,7 @@ function renderThemes(): void {
     fill.style.background = `repeating-linear-gradient(-8deg, ${t.a} 0 11px, ${t.b} 11px 22px)`
     const name = document.createElement('span')
     name.className = 'swatch-name'
-    name.textContent = t.name
+    name.textContent = i18n.t(`option.theme.${t.id}`)
     tile.append(fill, name)
     tile.addEventListener('click', () => {
       prefs.theme = t.id
@@ -325,14 +332,14 @@ function renderFonts(): void {
   for (const f of FONTS) {
     const tile = document.createElement('button')
     tile.className = 'swatch font-swatch' + (prefs.font === f.id ? ' selected' : '')
-    // Same tile size as the banner swatches, previewing the font with "Hello".
+    // Same tile size as the banner swatches, previewing the font with a sample word.
     const fill = document.createElement('span')
     fill.className = 'swatch-fill font-sample'
     fill.style.fontFamily = f.stack
-    fill.textContent = 'Hello'
+    fill.textContent = i18n.t('option.fontPreview')
     const name = document.createElement('span')
     name.className = 'swatch-name'
-    name.textContent = f.name
+    name.textContent = i18n.t(`option.font.${f.id}`)
     tile.append(fill, name)
     tile.addEventListener('click', () => {
       prefs.font = f.id
@@ -353,19 +360,21 @@ function renderCalendar(statuses: ProviderStatus[]): void {
   const i = statuses.find((s) => s.id === 'icloud')
   const x = statuses.find((s) => s.id === 'exchange')
 
-  pickIcalStatus.textContent = ic?.connected ? (ic.detail ?? 'Connected') : 'Not connected'
+  pickIcalStatus.textContent = ic?.connected
+    ? (ic.detail ?? i18n.t('settings.state.connected'))
+    : i18n.t('settings.state.notConnected')
   pickIcalStatus.classList.toggle('connected', !!ic?.connected)
   pickIcloudStatus.textContent = i?.connected
     ? i.detail
-      ? `Connected · ${i.detail}`
-      : 'Connected'
-    : 'Not connected'
+      ? i18n.t('settings.state.connectedDetail', { detail: i.detail })
+      : i18n.t('settings.state.connected')
+    : i18n.t('settings.state.notConnected')
   pickIcloudStatus.classList.toggle('connected', !!i?.connected)
   pickExchangeStatus.textContent = x?.connected
     ? x.detail
-      ? `Connected · ${x.detail}`
-      : 'Connected'
-    : 'Not connected'
+      ? i18n.t('settings.state.connectedDetail', { detail: x.detail })
+      : i18n.t('settings.state.connected')
+    : i18n.t('settings.state.notConnected')
   pickExchangeStatus.classList.toggle('connected', !!x?.connected)
 
   // iCloud wizard: form → connected
@@ -395,8 +404,8 @@ function renderUpcoming(events: UpcomingEvent[], connected: boolean): void {
     const li = document.createElement('li')
     li.className = 'up-empty'
     li.textContent = connected
-      ? 'No meetings in the next couple of hours.'
-      : 'Connect a calendar to see your meetings.'
+      ? i18n.t('settings.upcoming.empty')
+      : i18n.t('settings.upcoming.connect')
     upcomingList.append(li)
     return
   }
@@ -423,7 +432,7 @@ function renderFeeds(feeds: Feed[]): void {
   if (feeds.length === 0) {
     const li = document.createElement('li')
     li.className = 'muted'
-    li.textContent = 'None yet.'
+    li.textContent = i18n.t('settings.ical.none')
     icalFeedsEl.append(li)
     return
   }
@@ -433,7 +442,7 @@ function renderFeeds(feeds: Feed[]): void {
     name.textContent = f.name
     const rm = document.createElement('button')
     rm.className = 'btn btn-outline btn-sm'
-    rm.textContent = 'Remove'
+    rm.textContent = i18n.t('settings.action.remove')
     rm.addEventListener('click', async () => {
       renderFeeds(await q.icalRemove(f.id))
       await refreshCalendar()
@@ -490,7 +499,7 @@ document.querySelectorAll<HTMLElement>('[data-back]').forEach((b) =>
 icalAddBtn.addEventListener('click', async () => {
   hide(icalError)
   icalAddBtn.disabled = true
-  icalAddBtn.textContent = 'Adding…'
+  icalAddBtn.textContent = i18n.t('settings.ical.adding')
   try {
     renderFeeds(await q.icalAdd(icalUrl.value, icalName.value))
     icalUrl.value = ''
@@ -501,7 +510,7 @@ icalAddBtn.addEventListener('click', async () => {
     show(icalError)
   } finally {
     icalAddBtn.disabled = false
-    icalAddBtn.textContent = 'Add calendar'
+    icalAddBtn.textContent = i18n.t('settings.ical.add')
   }
 })
 
@@ -509,7 +518,7 @@ icalAddBtn.addEventListener('click', async () => {
 iConnect.addEventListener('click', async () => {
   hide(iError)
   iConnect.disabled = true
-  iConnect.textContent = 'Connecting…'
+  iConnect.textContent = i18n.t('settings.action.connecting')
   try {
     renderCalendar(await q.calConnect('icloud', { username: iUser.value, password: iPass.value }))
     iPass.value = ''
@@ -519,7 +528,7 @@ iConnect.addEventListener('click', async () => {
     show(iError)
   } finally {
     iConnect.disabled = false
-    iConnect.textContent = 'Connect'
+    iConnect.textContent = i18n.t('settings.action.connect')
   }
 })
 iDisconnect.addEventListener('click', async () => {
@@ -531,7 +540,7 @@ iDisconnect.addEventListener('click', async () => {
 xConnect.addEventListener('click', async () => {
   hide(xError)
   xConnect.disabled = true
-  xConnect.textContent = 'Connecting…'
+  xConnect.textContent = i18n.t('settings.action.connecting')
   try {
     renderCalendar(
       await q.calConnect('exchange', {
@@ -547,7 +556,7 @@ xConnect.addEventListener('click', async () => {
     show(xError)
   } finally {
     xConnect.disabled = false
-    xConnect.textContent = 'Connect'
+    xConnect.textContent = i18n.t('settings.action.connect')
   }
 })
 xDisconnect.addEventListener('click', async () => {
@@ -562,8 +571,30 @@ document.getElementById('made-by')?.addEventListener('click', (e) => {
 
 testBtn.addEventListener('click', () => void q.testFlight())
 
+// ---- Language -------------------------------------------------------------
+/** Re-binds the translator and re-renders every localized surface. */
+async function applyLocale(): Promise<void> {
+  i18n = createI18n(resolveLocale(prefs.lang, navigator.language))
+  document.documentElement.lang = i18n.locale
+  document.title = i18n.t('settings.windowTitle')
+  applyI18n(document, i18n)
+  renderHeads()
+  renderColors()
+  renderThemes()
+  renderFonts()
+  renderSounds()
+  renderPreview()
+  await refreshCalendar()
+  if (!wizIcal.classList.contains('hidden')) renderFeeds(await q.icalList())
+}
+
+langSel.addEventListener('change', async () => {
+  prefs = await q.setPrefs({ lang: langSel.value as Prefs['lang'] })
+  await applyLocale()
+})
+
 // ---- Init ----------------------------------------------------------------
 void (async () => {
   fillPrefs(await q.getPrefs())
-  await refreshCalendar()
+  await applyLocale()
 })()
