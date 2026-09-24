@@ -19,6 +19,7 @@ declare global {
     soundEnabled: boolean
     staySignedIn: boolean
     launchAtLogin: boolean
+    hideFromDock: boolean
     targetDisplay: 'cursor' | 'primary'
     theme: string
     flier: string
@@ -40,13 +41,7 @@ declare global {
   }
   type UpcomingEvent = { id: string; title: string; start: number }
   type Feed = { id: string; name: string; url: string }
-  type LicenseStatus = {
-    premium: boolean
-    active: boolean
-    keyMasked: string | null
-    expiresAt: number | null
-    lastChecked: number | null
-  }
+  type Feed = { id: string; name: string; url: string }
 
   interface QuakpitApi {
     onFlight: (cb: (flight: Flight) => void) => () => void
@@ -55,7 +50,7 @@ declare global {
     calStatus: () => Promise<ProviderStatus[]>
     calConnect: (
       provider: string,
-      params?: { username?: string; password?: string }
+      params?: { username?: string; password?: string; serverUrl?: string }
     ) => Promise<ProviderStatus[]>
     calDisconnect: (provider: string) => Promise<ProviderStatus[]>
     calConfigure: (
@@ -71,9 +66,6 @@ declare global {
     upcoming: () => Promise<UpcomingEvent[]>
     openExternal: (url: string) => Promise<void>
     testFlight: () => Promise<boolean>
-    licenseStatus: () => Promise<LicenseStatus>
-    licenseActivate: (key: string) => Promise<LicenseStatus>
-    licenseDeactivate: () => Promise<LicenseStatus>
   }
 
   interface Window {

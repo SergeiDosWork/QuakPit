@@ -8,12 +8,6 @@ import logoUrl from '../logo.png'
 const q = window.quakpit
 const $ = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T
 
-// SANDBOX = true → use the sandbox checkout. Keep in sync with SANDBOX in license.ts.
-const SANDBOX = false
-const CHECKOUT_URL = SANDBOX
-  ? 'https://sandbox-api.polar.sh/v1/checkout-links/polar_cl_fJ0kuc7WwipS4069xkDMxd4zF7fTHduCwPRhk2kozpi/redirect'
-  : 'https://buy.polar.sh/polar_cl_QkoaWmIHnH4hXJGdCKEf3hK88I0s3YyUQepmO2mMpZm'
-
 // ---- Tabs ----------------------------------------------------------------
 const navItems = Array.from(document.querySelectorAll<HTMLButtonElement>('.nav-item'))
 const panels = Array.from(document.querySelectorAll<HTMLElement>('.panel'))
@@ -37,37 +31,26 @@ const template = $<HTMLInputElement>('template')
 const displaySel = $<HTMLSelectElement>('display')
 const sound = $<HTMLInputElement>('sound')
 const login = $<HTMLInputElement>('login')
+const hideDock = $<HTMLInputElement>('hide-dock')
 const stay = $<HTMLInputElement>('stay')
 const flyAtStart = $<HTMLInputElement>('flyatstart')
-const proBanner = $('pro-banner')
-const calFreeNote = $('cal-free-note')
-calFreeNote.addEventListener('click', () => showTab('pro'))
 
-// Single-select "card" groups (Lead time, Speed). Returns helpers to set the
-// current value and to lock the group (Pro) so a click invites the upgrade.
+// Single-select "card" groups (Lead time, Speed). Returns a helper to set the
+// current value.
 function setupChoices(id: string, onPick: (value: string) => void): {
   set: (v: string) => void
-  setLocked: (locked: boolean) => void
 } {
   const group = $(id)
   const buttons = Array.from(group.querySelectorAll<HTMLButtonElement>('.choice'))
-  let locked = false
   const set = (v: string): void =>
     buttons.forEach((b) => b.classList.toggle('selected', b.dataset.value === v))
   buttons.forEach((b) =>
     b.addEventListener('click', () => {
-      if (locked) return showTab('pro')
       set(b.dataset.value as string)
       onPick(b.dataset.value as string)
     })
   )
-  return {
-    set,
-    setLocked: (l: boolean): void => {
-      locked = l
-      group.classList.toggle('locked', l)
-    }
-  }
+  return { set }
 }
 const leadChoices = setupChoices('lead', (v) => void q.setPrefs({ leadMinutes: Number(v) }))
 const speedChoices = setupChoices('speed', (v) => void q.setPrefs({ speed: v as Prefs['speed'] }))
@@ -89,8 +72,10 @@ pvProp.src = BLADE_URL
 const calPicker = $('cal-picker')
 const wizIcal = $('wiz-ical')
 const wizIcloud = $('wiz-icloud')
+const wizExchange = $('wiz-exchange')
 const pickIcalStatus = $('pick-ical-status')
 const pickIcloudStatus = $('pick-icloud-status')
+const pickExchangeStatus = $('pick-exchange-status')
 const upcomingList = $<HTMLUListElement>('upcoming')
 const upcomingRefresh = $<HTMLButtonElement>('upcoming-refresh')
 // iCal-link wizard
@@ -108,32 +93,29 @@ const iConnect = $<HTMLButtonElement>('i-connect')
 const iDisconnect = $<HTMLButtonElement>('i-disconnect')
 const iDetail = $('i-detail')
 const iError = $('i-error')
-
-const planBadge = $('plan-badge')
-const licenseLine = $('license-line')
-const licenseLocked = $('license-locked')
-const licenseActive = $('license-active')
-const licenseKey = $<HTMLInputElement>('license-key')
-const activateBtn = $<HTMLButtonElement>('activate-btn')
-const deactivateBtn = $<HTMLButtonElement>('deactivate-btn')
-const licenseError = $('license-error')
-const buyBtn = $<HTMLButtonElement>('buy-btn')
+// Exchange wizard
+const xStepForm = $('x-step-form')
+const xStepConnected = $('x-step-connected')
+const xServer = $<HTMLInputElement>('x-server')
+const xUser = $<HTMLInputElement>('x-user')
+const xPass = $<HTMLInputElement>('x-pass')
+const xConnect = $<HTMLButtonElement>('x-connect')
+const xDisconnect = $<HTMLButtonElement>('x-disconnect')
+const xDetail = $('x-detail')
+const xError = $('x-error')
 
 const testBtn = $<HTMLButtonElement>('test-btn')
 $<HTMLImageElement>('brand-logo').src = logoUrl
 
 // ---- State ---------------------------------------------------------------
-let isPro = false
 let previewCtx: AudioContext | null = null
-// A locked head/colour the free user is "trying" in the preview (not saved).
-let tryHead: string | null = null
-let tryColor: string | null = null
 let prefs: Prefs = {
   leadMinutes: 5,
   messageTemplate: '{title} in {minutes} minutes',
   soundEnabled: true,
   staySignedIn: true,
   launchAtLogin: false,
+  hideFromDock: false,
   targetDisplay: 'cursor',
   theme: 'classic',
   flier: 'duck-plane',
@@ -154,11 +136,10 @@ function fillPrefs(p: Prefs): void {
   displaySel.value = p.targetDisplay
   sound.checked = p.soundEnabled
   login.checked = p.launchAtLogin
+  hideDock.checked = p.hideFromDock
   stay.checked = p.staySignedIn
   speedChoices.set(p.speed)
   flyAtStart.checked = p.flyAtStart
-  tryHead = null
-  tryColor = null
   renderHeads()
   renderColors()
   renderThemes()
@@ -172,9 +153,9 @@ displaySel.addEventListener('change', () =>
 )
 sound.addEventListener('change', () => void q.setPrefs({ soundEnabled: sound.checked }))
 login.addEventListener('change', () => void q.setPrefs({ launchAtLogin: login.checked }))
+hideDock.addEventListener('change', () => void q.setPrefs({ hideFromDock: hideDock.checked }))
 stay.addEventListener('change', () => void q.setPrefs({ staySignedIn: stay.checked }))
 flyAtStart.addEventListener('change', () => void q.setPrefs({ flyAtStart: flyAtStart.checked }))
-proBanner.addEventListener('click', () => showTab('pro'))
 
 // Banner-message token tags: insert {title} / {minutes} at the cursor.
 Array.from(document.querySelectorAll<HTMLButtonElement>('.tag-btn')).forEach((b) =>
@@ -190,17 +171,8 @@ Array.from(document.querySelectorAll<HTMLButtonElement>('.tag-btn')).forEach((b)
   })
 )
 
-/** Reflects the Pro/Free state: Speed is Pro-locked, the banner hides once Pro. */
-function applyProGating(): void {
-  speedChoices.setLocked(!isPro)
-  proBanner.classList.toggle('hidden', isPro)
-  calFreeNote.classList.toggle('hidden', isPro)
-}
-
 // ---- Appearance: Flier = character head + plane colour -------------------
 // Each tile is a complete mini-plane (plane colour + head) so it's always clear.
-// Free users get only the first head + first colour; the rest are Pro. Tapping a
-// locked tile doesn't select it — it just "tries" it in the preview above.
 // A flier tile shows a single image: a head (tile = just the head, bigger) or a
 // plane colour (tile = just the plane, with its static blade).
 function flierTile(opts: {
@@ -208,16 +180,10 @@ function flierTile(opts: {
   fillClass: string
   name: string
   selected: boolean
-  trying: boolean
-  locked: boolean
   onClick: () => void
 }): HTMLButtonElement {
   const tile = document.createElement('button')
-  tile.className =
-    'swatch flier-swatch' +
-    (opts.selected ? ' selected' : '') +
-    (opts.trying ? ' trying' : '') +
-    (opts.locked ? ' locked' : '')
+  tile.className = 'swatch flier-swatch' + (opts.selected ? ' selected' : '')
   const fill = document.createElement('span')
   fill.className = 'swatch-fill ' + opts.fillClass
   const img = document.createElement('img')
@@ -227,12 +193,6 @@ function flierTile(opts: {
   name.className = 'swatch-name'
   name.textContent = opts.name
   tile.append(fill, name)
-  if (opts.locked) {
-    const lk = document.createElement('span')
-    lk.className = 'lock'
-    lk.textContent = '🔒'
-    tile.append(lk)
-  }
   tile.addEventListener('click', opts.onClick)
   return tile
 }
@@ -240,16 +200,13 @@ function flierTile(opts: {
 function renderHeads(): void {
   headsEl.innerHTML = ''
   for (const h of HEADS) {
-    const locked = !h.free && !isPro
     headsEl.append(
       flierTile({
         img: headThumbUrl(h.id), // just the head, cropped → shows bigger
         fillClass: 'head-sample',
         name: h.name,
-        selected: tryHead === null && prefs.flierHead === h.id,
-        trying: tryHead === h.id,
-        locked,
-        onClick: () => pickHead(h.id, locked)
+        selected: prefs.flierHead === h.id,
+        onClick: () => pickHead(h.id)
       })
     )
   }
@@ -258,47 +215,34 @@ function renderHeads(): void {
 function renderColors(): void {
   colorsEl.innerHTML = ''
   for (const c of PLANE_COLORS) {
-    const locked = !c.free && !isPro
     colorsEl.append(
       flierTile({
         img: planeUrl(c.id), // just the plane (static blade)
         fillClass: 'plane-sample',
         name: c.name,
-        selected: tryColor === null && prefs.flierColor === c.id,
-        trying: tryColor === c.id,
-        locked,
-        onClick: () => pickColor(c.id, locked)
+        selected: prefs.flierColor === c.id,
+        onClick: () => pickColor(c.id)
       })
     )
   }
 }
 
-function pickHead(id: string, locked: boolean): void {
+function pickHead(id: string): void {
   const h = headById(id)
-  if (locked) {
-    tryHead = id // preview-only: selection stays on the free head
-  } else {
-    // Picking an animal also switches the flight sound to that animal's voice.
-    prefs.flierHead = id
-    prefs.soundPack = h.sound
-    tryHead = null
-    void q.setPrefs({ flierHead: id, soundPack: h.sound })
-  }
+  // Picking an animal also switches the flight sound to that animal's voice.
+  prefs.flierHead = id
+  prefs.soundPack = h.sound
+  void q.setPrefs({ flierHead: id, soundPack: h.sound })
   renderHeads()
   renderColors()
   renderSounds()
   renderPreview()
-  previewSound(h.sound) // hear the animal (teaser even when locked)
+  previewSound(h.sound) // hear the animal
 }
 
-function pickColor(id: string, locked: boolean): void {
-  if (locked) {
-    tryColor = id
-  } else {
-    prefs.flierColor = id
-    tryColor = null
-    void q.setPrefs({ flierColor: id })
-  }
+function pickColor(id: string): void {
+  prefs.flierColor = id
+  void q.setPrefs({ flierColor: id })
   renderHeads()
   renderColors()
   renderPreview()
@@ -311,10 +255,8 @@ const SOUND_ICON =
 function renderSounds(): void {
   soundsEl.innerHTML = ''
   for (const s of SOUNDS) {
-    const locked = !s.free && !isPro
     const tile = document.createElement('button')
-    tile.className =
-      'swatch sound-swatch' + (prefs.soundPack === s.id ? ' selected' : '') + (locked ? ' locked' : '')
+    tile.className = 'swatch sound-swatch' + (prefs.soundPack === s.id ? ' selected' : '')
     const fill = document.createElement('span')
     fill.className = 'swatch-fill sound-sample'
     fill.innerHTML = SOUND_ICON
@@ -322,14 +264,7 @@ function renderSounds(): void {
     name.className = 'swatch-name'
     name.textContent = s.name
     tile.append(fill, name)
-    if (locked) {
-      const lk = document.createElement('span')
-      lk.className = 'lock'
-      lk.textContent = '🔒'
-      tile.append(lk)
-    }
     tile.addEventListener('click', () => {
-      if (locked) return showTab('pro')
       prefs.soundPack = s.id
       void q.setPrefs({ soundPack: s.id })
       renderSounds()
@@ -353,10 +288,8 @@ function previewSound(id: string): void {
 function renderThemes(): void {
   themesEl.innerHTML = ''
   for (const t of THEMES) {
-    const locked = !t.free && !isPro
     const tile = document.createElement('button')
-    tile.className =
-      'swatch' + (prefs.theme === t.id ? ' selected' : '') + (locked ? ' locked' : '')
+    tile.className = 'swatch' + (prefs.theme === t.id ? ' selected' : '')
     // The fill shows the actual banner stripes so you really see the colours.
     const fill = document.createElement('span')
     fill.className = 'swatch-fill'
@@ -365,14 +298,7 @@ function renderThemes(): void {
     name.className = 'swatch-name'
     name.textContent = t.name
     tile.append(fill, name)
-    if (locked) {
-      const lk = document.createElement('span')
-      lk.className = 'lock'
-      lk.textContent = '🔒'
-      tile.append(lk)
-    }
     tile.addEventListener('click', () => {
-      if (locked) return showTab('pro')
       prefs.theme = t.id
       void q.setPrefs({ theme: t.id })
       renderThemes()
@@ -382,15 +308,15 @@ function renderThemes(): void {
   }
 }
 
-/** Updates the live Appearance preview to match the current (or tried) selection. */
+/** Updates the live Appearance preview to match the current selection. */
 function renderPreview(): void {
   const theme = themeById(prefs.theme)
   pvBanner.style.setProperty('--stripe-a', theme.a)
   pvBanner.style.setProperty('--stripe-b', theme.b)
   pvBanner.style.setProperty('--banner-ink', theme.text)
   pvBanner.style.setProperty('--banner-font', fontById(prefs.font).stack)
-  pvPlane.src = planeBaseUrl(tryColor ?? prefs.flierColor)
-  pvHead.src = headUrl(tryHead ?? prefs.flierHead)
+  pvPlane.src = planeBaseUrl(prefs.flierColor)
+  pvHead.src = headUrl(prefs.flierHead)
 }
 
 function renderFonts(): void {
@@ -424,6 +350,7 @@ const show = (el: HTMLElement): void => el.classList.remove('hidden')
 function renderCalendar(statuses: ProviderStatus[]): void {
   const ic = statuses.find((s) => s.id === 'ical')
   const i = statuses.find((s) => s.id === 'icloud')
+  const x = statuses.find((s) => s.id === 'exchange')
 
   pickIcalStatus.textContent = ic?.connected ? (ic.detail ?? 'Connected') : 'Not connected'
   pickIcalStatus.classList.toggle('connected', !!ic?.connected)
@@ -433,6 +360,12 @@ function renderCalendar(statuses: ProviderStatus[]): void {
       : 'Connected'
     : 'Not connected'
   pickIcloudStatus.classList.toggle('connected', !!i?.connected)
+  pickExchangeStatus.textContent = x?.connected
+    ? x.detail
+      ? `Connected · ${x.detail}`
+      : 'Connected'
+    : 'Not connected'
+  pickExchangeStatus.classList.toggle('connected', !!x?.connected)
 
   // iCloud wizard: form → connected
   if (i?.connected) {
@@ -442,6 +375,16 @@ function renderCalendar(statuses: ProviderStatus[]): void {
   } else {
     show(iStepForm)
     hide(iStepConnected)
+  }
+
+  // Exchange wizard: form → connected
+  if (x?.connected) {
+    xDetail.textContent = x.detail ?? ''
+    hide(xStepForm)
+    show(xStepConnected)
+  } else {
+    show(xStepForm)
+    hide(xStepConnected)
   }
 }
 
@@ -521,13 +464,16 @@ function showPicker(): void {
   show(calPicker)
   hide(wizIcal)
   hide(wizIcloud)
+  hide(wizExchange)
 }
 async function openWizard(provider: string): Promise<void> {
   hide(calPicker)
   hide(icalError)
   hide(iError)
+  hide(xError)
   wizIcal.classList.toggle('hidden', provider !== 'ical')
   wizIcloud.classList.toggle('hidden', provider !== 'icloud')
+  wizExchange.classList.toggle('hidden', provider !== 'exchange')
   if (provider === 'ical') renderFeeds(await q.icalList())
 }
 document.querySelectorAll<HTMLElement>('.provider-btn').forEach((b) =>
@@ -580,52 +526,33 @@ iDisconnect.addEventListener('click', async () => {
   renderUpcoming([], false)
 })
 
-// ---- License / Pro -------------------------------------------------------
-function renderLicense(s: LicenseStatus): void {
-  isPro = s.premium
-  planBadge.textContent = s.premium ? 'PRO' : 'Free'
-  planBadge.className = 'badge ' + (s.premium ? 'pro' : 'free')
-  licenseLocked.classList.toggle('hidden', s.premium)
-  licenseActive.classList.toggle('hidden', !s.premium)
-  if (s.premium) {
-    const exp = s.expiresAt ? ` · renews ${new Date(s.expiresAt).toLocaleDateString()}` : ''
-    licenseLine.textContent = `Thanks for supporting Quakpit! Key ${s.keyMasked ?? ''}${exp}`
-  } else {
-    licenseLine.textContent = 'Make the duck truly yours — and keep an indie project flying.'
-  }
-  applyProGating()
-  tryHead = null
-  tryColor = null
-  renderHeads()
-  renderColors()
-  renderThemes()
-  renderSounds()
-}
-
-activateBtn.addEventListener('click', async () => {
-  licenseError.classList.add('hidden')
-  activateBtn.disabled = true
-  activateBtn.textContent = 'Activating…'
+// Exchange wizard
+xConnect.addEventListener('click', async () => {
+  hide(xError)
+  xConnect.disabled = true
+  xConnect.textContent = 'Connecting…'
   try {
-    renderLicense(await q.licenseActivate(licenseKey.value))
+    renderCalendar(
+      await q.calConnect('exchange', {
+        serverUrl: xServer.value,
+        username: xUser.value,
+        password: xPass.value
+      })
+    )
+    xPass.value = ''
+    renderUpcoming(await q.upcoming(), true)
   } catch (e) {
-    licenseError.textContent = (e as Error).message
-    licenseError.classList.remove('hidden')
+    xError.textContent = (e as Error).message
+    show(xError)
   } finally {
-    activateBtn.disabled = false
-    activateBtn.textContent = 'Activate'
+    xConnect.disabled = false
+    xConnect.textContent = 'Connect'
   }
 })
-deactivateBtn.addEventListener('click', async () => {
-  deactivateBtn.disabled = true
-  try {
-    renderLicense(await q.licenseDeactivate())
-  } finally {
-    deactivateBtn.disabled = false
-  }
+xDisconnect.addEventListener('click', async () => {
+  renderCalendar(await q.calDisconnect('exchange'))
+  renderUpcoming([], false)
 })
-
-buyBtn.addEventListener('click', () => void q.openExternal(CHECKOUT_URL))
 
 document.getElementById('made-by')?.addEventListener('click', (e) => {
   e.preventDefault()
@@ -637,6 +564,5 @@ testBtn.addEventListener('click', () => void q.testFlight())
 // ---- Init ----------------------------------------------------------------
 void (async () => {
   fillPrefs(await q.getPrefs())
-  renderLicense(await q.licenseStatus())
   await refreshCalendar()
 })()

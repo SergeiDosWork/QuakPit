@@ -7,7 +7,6 @@ import { getPrefs } from './store'
 import { startScheduler } from './scheduler'
 import { initAutoUpdate } from './updater'
 import * as calendar from './calendar'
-import * as license from './license'
 
 // Only allow a single running instance of Quakpit.
 if (!app.requestSingleInstanceLock()) {
@@ -33,10 +32,14 @@ function sendTestFlight(): void {
 }
 
 app.whenReady().then(async () => {
-  // Quakpit is a regular app: it shows in the Dock and Cmd+Tab. (It also keeps
-  // a menu-bar icon for quick access, and stays running in the background.)
-  // Lock the Dock icon on so showing the overlay never drops us to accessory mode.
-  if (process.platform === 'darwin') app.dock?.show()
+  // Quakpit is a regular app by default: it shows in the Dock and Cmd+Tab, and
+  // also keeps a menu-bar icon. The "hide from Dock" preference switches it to
+  // a menu-bar-only app (no Dock icon, no Cmd+Tab) — settings stay reachable
+  // through the tray. Honoured at startup and applied live from ipc.ts.
+  if (process.platform === 'darwin') {
+    if (getPrefs().hideFromDock) app.dock?.hide()
+    else app.dock?.show()
+  }
 
   registerIpc()
 
@@ -59,9 +62,6 @@ app.whenReady().then(async () => {
   // Restore any saved calendar sessions (Google opt-in, iCloud creds), then watch.
   await calendar.init().catch(() => undefined)
   startScheduler()
-
-  // Re-validate the license online (offline grace keeps premium working if this fails).
-  void license.validate()
 
   // Check GitHub Releases for updates (packaged builds only).
   initAutoUpdate()

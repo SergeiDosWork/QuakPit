@@ -9,6 +9,7 @@ export type Prefs = {
   soundEnabled: boolean
   staySignedIn: boolean
   launchAtLogin: boolean
+  hideFromDock: boolean // menu-bar-only mode: no Dock icon, no Cmd+Tab
   targetDisplay: 'cursor' | 'primary'
   theme: string
   flier: string
@@ -28,6 +29,7 @@ const DEFAULT_PREFS: Prefs = {
   soundEnabled: true,
   staySignedIn: true,
   launchAtLogin: false,
+  hideFromDock: false,
   targetDisplay: 'cursor',
   theme: 'classic',
   flier: 'duck-plane',
@@ -47,8 +49,8 @@ function dataDir(): string {
 }
 const prefsPath = (): string => join(dataDir(), 'prefs.json')
 const tokenPath = (): string => join(dataDir(), 'token.bin')
-const licensePath = (): string => join(dataDir(), 'license.bin')
 const icloudPath = (): string => join(dataDir(), 'icloud.bin')
+const exchangePath = (): string => join(dataDir(), 'exchange.bin')
 const googleCredsPath = (): string => join(dataDir(), 'google-creds.bin')
 const icalPath = (): string => join(dataDir(), 'ical-feeds.bin')
 // The user's own plane image, kept as a ready-to-render data URL (not sensitive).
@@ -110,34 +112,6 @@ export function clearRefreshToken(): void {
   }
 }
 
-// --- License entitlement: encrypted at rest by the OS (key + instance id + cache) ---
-
-export function saveEntitlement(json: string): void {
-  try {
-    if (!safeStorage.isEncryptionAvailable()) return
-    writeFileSync(licensePath(), safeStorage.encryptString(json))
-  } catch {
-    /* ignore */
-  }
-}
-
-export function loadEntitlement(): string | null {
-  try {
-    if (!existsSync(licensePath()) || !safeStorage.isEncryptionAvailable()) return null
-    return safeStorage.decryptString(readFileSync(licensePath()))
-  } catch {
-    return null
-  }
-}
-
-export function clearEntitlement(): void {
-  try {
-    if (existsSync(licensePath())) rmSync(licensePath())
-  } catch {
-    /* ignore */
-  }
-}
-
 // --- iCloud CalDAV credentials: Apple ID + app-specific password, encrypted ---
 
 export function saveICloud(json: string): void {
@@ -161,6 +135,34 @@ export function loadICloud(): string | null {
 export function clearICloud(): void {
   try {
     if (existsSync(icloudPath())) rmSync(icloudPath())
+  } catch {
+    /* ignore */
+  }
+}
+
+// --- Exchange (on-prem) credentials: EWS endpoint + Windows login, encrypted ---
+
+export function saveExchange(json: string): void {
+  try {
+    if (!safeStorage.isEncryptionAvailable()) return
+    writeFileSync(exchangePath(), safeStorage.encryptString(json))
+  } catch {
+    /* ignore */
+  }
+}
+
+export function loadExchange(): string | null {
+  try {
+    if (!existsSync(exchangePath()) || !safeStorage.isEncryptionAvailable()) return null
+    return safeStorage.decryptString(readFileSync(exchangePath()))
+  } catch {
+    return null
+  }
+}
+
+export function clearExchange(): void {
+  try {
+    if (existsSync(exchangePath())) rmSync(exchangePath())
   } catch {
     /* ignore */
   }

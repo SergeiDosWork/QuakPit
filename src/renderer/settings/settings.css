@@ -340,12 +340,6 @@ a {
   background: var(--yellow);
   transform: rotate(-1.5deg);
 }
-.choices.locked .choice {
-  opacity: 0.5;
-}
-.choices.locked .choice:hover {
-  transform: none;
-}
 
 /* Blue token tags under the banner message */
 .tag-row {
@@ -526,26 +520,7 @@ a {
   transform: translateX(21px);
 }
 
-/* ---- Tags / badges ---- */
-.badge {
-  margin-left: auto;
-  font-family: var(--font-note);
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border: 1.5px solid var(--ink);
-  border-radius: 4px;
-  transform: rotate(3deg);
-}
-.badge.free {
-  background: var(--paper-card);
-  color: var(--ink-soft);
-}
-.badge.pro {
-  background: var(--yellow);
-  color: var(--ink);
-}
-.pro-tag,
+/* ---- Tags ---- */
 .reco,
 .soon {
   display: inline-block;
@@ -556,12 +531,6 @@ a {
   border: 1px solid rgba(0, 0, 0, 0.22);
   border-radius: 4px;
   vertical-align: middle;
-}
-.pro-tag {
-  background: var(--postit);
-  color: #4a3b00;
-  transform: rotate(3deg);
-  margin-left: 4px;
 }
 .reco {
   background: var(--yellow);
@@ -574,65 +543,6 @@ a {
   background: var(--paper-2);
   color: var(--ink-soft);
   transform: rotate(2deg);
-}
-
-/* ---- Upgrade banner (top of General) ---- */
-.pro-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  background: var(--yellow);
-  border: 2.5px solid var(--ink);
-  border-radius: var(--wobble-a);
-  box-shadow: var(--shadow);
-  padding: 12px 16px;
-  margin-bottom: 18px;
-  transition: transform 0.12s ease;
-}
-.pro-banner:hover {
-  transform: rotate(-1deg) translateY(-1px);
-}
-.pro-banner-text {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-.pro-banner-text strong {
-  font-family: var(--font-hand);
-  font-weight: 700;
-  font-size: 22px;
-  line-height: 1;
-}
-.pro-banner-text span {
-  font-family: var(--font-note);
-  font-size: 14px;
-  color: rgba(32, 38, 47, 0.7);
-}
-.pro-banner-cta {
-  flex: none;
-  font-family: var(--font-note);
-  font-size: 15px;
-  background: var(--paper-card);
-  color: var(--ink);
-  border: 2px solid var(--ink);
-  padding: 6px 12px;
-  border-radius: 999px;
-  white-space: nowrap;
-  transform: rotate(-2deg);
-}
-
-/* ---- Pro-only rows mixed with free ones ---- */
-.pro-row.locked {
-  cursor: pointer;
-}
-.pro-row.locked .select,
-.pro-row.locked .switch {
-  opacity: 0.5;
-  pointer-events: none;
 }
 
 /* ---- Mini category nav (Appearance) ---- */
@@ -701,20 +611,6 @@ a {
   background: var(--yellow);
   transform: rotate(-1.5deg);
 }
-/* a locked option being "tried" in the preview (free user) */
-.swatch.trying {
-  border-color: var(--blue);
-  box-shadow: inset 0 0 0 2.5px var(--blue);
-}
-.swatch.locked {
-  opacity: 0.6;
-}
-.swatch.locked.trying {
-  opacity: 1;
-}
-.swatch.locked:hover {
-  transform: none;
-}
 .swatch-fill {
   height: 50px;
   width: 100%;
@@ -728,16 +624,6 @@ a {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-.swatch .lock {
-  position: absolute;
-  top: 6px;
-  right: 7px;
-  font-size: 11px;
-  background: var(--paper-card);
-  border: 1.5px solid var(--ink);
-  border-radius: 5px;
-  padding: 0 3px;
 }
 /* font tile */
 .font-sample {
@@ -787,30 +673,6 @@ a {
 }
 .sound-swatch.selected .sound-sample {
   color: var(--ink);
-}
-
-/* ---- Calendar: free-plan note ---- */
-.cal-note {
-  display: block;
-  width: 100%;
-  text-align: left;
-  font-family: var(--font-note);
-  font-size: 15px;
-  color: #4a3b00;
-  background: var(--postit);
-  border: 2.5px solid var(--ink);
-  border-radius: var(--wobble-b);
-  box-shadow: var(--shadow);
-  padding: 10px 14px;
-  margin-bottom: 14px;
-  cursor: pointer;
-  transition: transform 0.1s ease;
-}
-.cal-note:hover {
-  transform: rotate(-0.8deg);
-}
-.cal-note b {
-  color: var(--blue);
 }
 
 /* ---- Calendar: provider picker ---- */
@@ -1074,97 +936,10 @@ a {
   margin: 14px 0 0;
 }
 
-/* ---- Quakpit Pro page ---- */
-.pro-card {
-  transform: rotate(-0.6deg);
-}
-.price-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 4px;
-}
-.price {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-}
-.price-amount {
-  font-family: var(--font-hand);
-  font-weight: 700;
-  font-size: 54px;
-  line-height: 0.9;
-  color: var(--ink);
-}
-.price-note {
-  font-family: var(--font-note);
-  font-size: 15px;
-  color: var(--ink-soft);
-}
-#license-line {
-  font-family: var(--font-note);
-  font-size: 16px;
-}
-.checks {
-  list-style: none;
-  margin: 16px 0 18px;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 11px;
-}
-.checks li {
-  position: relative;
-  padding-left: 32px;
-  font-size: 14.5px;
-  line-height: 1.35;
-}
-.checks li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 2px solid var(--ink);
-  background: var(--green)
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7'/%3E%3C/svg%3E")
-    center / 12px 12px no-repeat;
-}
-.have-key {
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 2px dashed rgba(32, 38, 47, 0.25);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.pro-foot {
-  text-align: center;
-  font-family: var(--font-note);
-  font-size: 14px;
-  margin: 14px 4px 0;
-}
-#license-key {
-  flex: 1;
-}
 .ok {
   font-family: var(--font-note);
   font-size: 16px;
   color: var(--green);
-}
-/* Pro-active note: soft green panel in the notebook style */
-.active-note {
-  font-family: var(--font-note);
-  font-size: 17px;
-  color: #0f5132;
-  background: #d8f3e3;
-  border: 2.5px solid var(--ink);
-  border-radius: var(--wobble-a);
-  box-shadow: var(--shadow);
-  padding: 12px 14px;
-  margin: 0 0 14px;
 }
 .warn {
   color: var(--red);
