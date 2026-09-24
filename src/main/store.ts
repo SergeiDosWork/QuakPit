@@ -47,7 +47,6 @@ function dataDir(): string {
 }
 const prefsPath = (): string => join(dataDir(), 'prefs.json')
 const tokenPath = (): string => join(dataDir(), 'token.bin')
-const licensePath = (): string => join(dataDir(), 'license.bin')
 const icloudPath = (): string => join(dataDir(), 'icloud.bin')
 const exchangePath = (): string => join(dataDir(), 'exchange.bin')
 const googleCredsPath = (): string => join(dataDir(), 'google-creds.bin')
@@ -106,34 +105,6 @@ export function loadRefreshToken(): string | null {
 export function clearRefreshToken(): void {
   try {
     if (existsSync(tokenPath())) rmSync(tokenPath())
-  } catch {
-    /* ignore */
-  }
-}
-
-// --- License entitlement: encrypted at rest by the OS (key + instance id + cache) ---
-
-export function saveEntitlement(json: string): void {
-  try {
-    if (!safeStorage.isEncryptionAvailable()) return
-    writeFileSync(licensePath(), safeStorage.encryptString(json))
-  } catch {
-    /* ignore */
-  }
-}
-
-export function loadEntitlement(): string | null {
-  try {
-    if (!existsSync(licensePath()) || !safeStorage.isEncryptionAvailable()) return null
-    return safeStorage.decryptString(readFileSync(licensePath()))
-  } catch {
-    return null
-  }
-}
-
-export function clearEntitlement(): void {
-  try {
-    if (existsSync(licensePath())) rmSync(licensePath())
   } catch {
     /* ignore */
   }

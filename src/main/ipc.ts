@@ -11,7 +11,6 @@ import {
 } from './store'
 import * as google from './calendar/google'
 import * as calendar from './calendar'
-import * as license from './license'
 import { flyAcross } from './windows/overlay'
 import { startScheduler } from './scheduler'
 
@@ -21,14 +20,6 @@ const IMAGE_MIME: Record<string, string> = {
   '.jpeg': 'image/jpeg',
   '.gif': 'image/gif',
   '.webp': 'image/webp'
-}
-
-const FREE_CAL_MSG =
-  'The free plan supports one calendar. Upgrade to Quakpit Pro to add more calendars.'
-
-/** How many calendars are connected across all providers (iCal feeds + account providers). */
-function calendarCount(): number {
-  return calendar.icalFeeds().length + calendar.statuses().filter((s) => s.connected).length
 }
 
 /** Wires the settings renderer to the main process. */
@@ -49,16 +40,12 @@ export function registerIpc(): void {
     return prefs
   })
 
-  // --- Calendars (multi-provider: Google, iCloud, …) ---
+  // --- Calendars (multi-provider: Google, iCloud, Exchange, iCal links) ---
   ipcMain.handle('cal:status', () => calendar.statuses())
 
   ipcMain.handle(
     'cal:connect',
     async (_e, provider: string, params: { username?: string; password?: string; serverUrl?: string }) => {
-      // Free plan = a single calendar. Reconnecting the same source is still allowed.
-      const statuses = calendar.statuses()
-      const same = statuses.find((s) => s.id === provider)?.connected ?? false
-      if (!license.isPremium() && calendarCount() >= 1 && !same) throw new Error(FREE_CAL_MSG)
       const s = await calendar.connect(provider, params ?? {})
       startScheduler()
       return s
@@ -76,8 +63,6 @@ export function registerIpc(): void {
   // iCal subscription links
   ipcMain.handle('ical:list', () => calendar.icalFeeds())
   ipcMain.handle('ical:add', async (_e, url: string, name?: string) => {
-    // Free plan = a single calendar across all providers.
-    if (!license.isPremium() && calendarCount() >= 1) throw new Error(FREE_CAL_MSG)
     const feeds = await calendar.icalAdd(url, name)
     startScheduler()
     return feeds
@@ -130,9 +115,4 @@ export function registerIpc(): void {
     const wasCustom = getPrefs().flier === 'custom'
     return setPrefs({ customFlierName: '', ...(wasCustom ? { flier: 'duck-plane' } : {}) })
   })
-
-  // --- License / premium ---
-  ipcMain.handle('license:status', () => license.status())
-  ipcMain.handle('license:activate', (_e, key: string) => license.activate(key))
-  ipcMain.handle('license:deactivate', () => license.deactivate())
 }

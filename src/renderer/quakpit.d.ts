@@ -40,13 +40,7 @@ declare global {
   }
   type UpcomingEvent = { id: string; title: string; start: number }
   type Feed = { id: string; name: string; url: string }
-  type LicenseStatus = {
-    premium: boolean
-    active: boolean
-    keyMasked: string | null
-    expiresAt: number | null
-    lastChecked: number | null
-  }
+  type Feed = { id: string; name: string; url: string }
 
   interface QuakpitApi {
     onFlight: (cb: (flight: Flight) => void) => () => void
@@ -71,9 +65,6 @@ declare global {
     upcoming: () => Promise<UpcomingEvent[]>
     openExternal: (url: string) => Promise<void>
     testFlight: () => Promise<boolean>
-    licenseStatus: () => Promise<LicenseStatus>
-    licenseActivate: (key: string) => Promise<LicenseStatus>
-    licenseDeactivate: () => Promise<LicenseStatus>
   }
 
   interface Window {

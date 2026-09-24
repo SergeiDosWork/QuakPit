@@ -39,9 +39,5 @@ contextBridge.exposeInMainWorld('quakpit', {
   flierRemoveCustom: () => ipcRenderer.invoke('flier:removeCustom'),
   upcoming: () => ipcRenderer.invoke('events:upcoming'),
   openExternal: (url: string) => ipcRenderer.invoke('open:external', url),
-  testFlight: () => ipcRenderer.invoke('flight:test'),
-  // License / premium
-  licenseStatus: () => ipcRenderer.invoke('license:status'),
-  licenseActivate: (key: string) => ipcRenderer.invoke('license:activate', key),
-  licenseDeactivate: () => ipcRenderer.invoke('license:deactivate')
+  testFlight: () => ipcRenderer.invoke('flight:test')
 })

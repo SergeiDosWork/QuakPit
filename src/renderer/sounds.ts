@@ -1,11 +1,10 @@
-// The signature sound that plays as the plane passes mid-screen. Only the free
-// Duck "quack" ships in this open-source build; the Pro build adds per-animal
-// sounds on top. Shared by the overlay (real flights) and settings (previews).
+// The signature sound that plays as the plane passes mid-screen. Shared by the
+// overlay (real flights) and settings (previews).
 import quackUrl from './overlay/quack.wav'
 
-export type SoundPack = { id: string; name: string; free: boolean }
+export type SoundPack = { id: string; name: string }
 
-export const SOUNDS: SoundPack[] = [{ id: 'quack', name: 'Duck', free: true }]
+export const SOUNDS: SoundPack[] = [{ id: 'quack', name: 'Duck' }]
 
 export function soundById(id: string | undefined): SoundPack {
   return SOUNDS.find((s) => s.id === id) ?? SOUNDS[0]

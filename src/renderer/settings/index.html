@@ -15,7 +15,6 @@
         <div class="brand">
           <img id="brand-logo" class="brand-logo" alt="" />
           <span class="brand-name">Quakpit</span>
-          <span id="plan-badge" class="badge free">Free</span>
         </div>
 
         <nav class="nav">
@@ -31,10 +30,6 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
             Calendar
           </button>
-          <button class="nav-item" data-tab="pro">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8l4.5 3.5L12 5l4.5 6.5L21 8v10H3z"/></svg>
-            Quakpit Pro
-          </button>
         </nav>
 
         <div class="sidebar-foot">
@@ -49,15 +44,6 @@
         <!-- GENERAL -->
         <section class="panel active" data-panel="general">
           <div class="panel-head"><h1>General</h1><p class="muted">When and how the duck flies by.</p></div>
-
-          <!-- Upgrade banner (hidden once Pro) -->
-          <button id="pro-banner" class="pro-banner">
-            <span class="pro-banner-text">
-              <strong>Go Pro</strong>
-              <span>Unlock every feature &amp; support Quakpit</span>
-            </span>
-            <span class="pro-banner-cta">Upgrade · $4.99</span>
-          </button>
 
           <!-- Reminders: timing + what the banner says -->
           <div class="card">
@@ -90,7 +76,7 @@
           <div class="card">
             <div class="card-title">Flight</div>
             <div class="field field-col">
-              <div class="field-label"><span>Speed <span class="pro-tag">PRO</span></span><span class="hint">How fast the plane crosses the screen</span></div>
+              <div class="field-label"><span>Speed</span><span class="hint">How fast the plane crosses the screen</span></div>
               <div id="speed" class="choices">
                 <button class="choice" data-value="normal">×1</button>
                 <button class="choice" data-value="fast">×1.5</button>
@@ -164,8 +150,8 @@
           <!-- Flier -->
           <div class="subpanel active" data-sub="flier">
             <div class="card">
-              <div class="card-title">Flier <span class="pro-tag">PRO</span></div>
-              <p class="muted small">Pick a head, then a plane colour. Tap a locked one to try it in the preview above.</p>
+              <div class="card-title">Flier</div>
+              <p class="muted small">Pick a head, then a plane colour.</p>
               <div class="group-label"><span>Head</span></div>
               <div id="heads" class="swatch-grid"></div>
               <div class="group-label" style="margin-top:16px"><span>Plane colour</span></div>
@@ -176,7 +162,7 @@
           <!-- Banner -->
           <div class="subpanel" data-sub="banner">
             <div class="card">
-              <div class="card-title">Banner theme <span class="pro-tag">PRO</span></div>
+              <div class="card-title">Banner theme</div>
               <p class="muted small">Stripe colours of the towed banner.</p>
               <div id="themes" class="swatch-grid"></div>
             </div>
@@ -200,7 +186,7 @@
                 <label class="switch"><input id="sound" type="checkbox" /><span class="track"><span class="thumb"></span></span></label>
               </div>
               <div class="sep"></div>
-              <div class="group-label"><span>Flight sound <span class="pro-tag">PRO</span></span><span class="hint">Follows your animal — tap to preview</span></div>
+              <div class="group-label"><span>Flight sound</span><span class="hint">Follows your animal — tap to preview</span></div>
               <div id="sounds" class="swatch-grid"></div>
             </div>
           </div>
@@ -212,9 +198,6 @@
 
           <!-- Provider picker -->
           <div id="cal-picker">
-            <button id="cal-free-note" class="cal-note hidden">
-              You're on the free plan — one calendar only. <b>Go Pro</b> to add more.
-            </button>
             <div class="provider-list">
               <button class="provider-btn" data-go="ical">
                 <span class="provider-ico">
@@ -346,51 +329,6 @@
 
             <p id="x-error" class="warn hidden"></p>
           </div>
-        </section>
-
-        <!-- PRO -->
-        <section class="panel" data-panel="pro">
-          <div class="panel-head"><h1>Quakpit Pro</h1><p class="muted">Everything unlocked. One payment, yours forever.</p></div>
-
-          <div class="card pro-card">
-            <div class="price-row">
-              <div class="price">
-                <span class="price-amount">$4.99</span>
-                <span class="price-note">one-time · lifetime</span>
-              </div>
-            </div>
-
-            <p id="license-line" class="muted">Make the duck truly yours — and keep an indie project flying.</p>
-
-            <div id="license-locked">
-              <ul class="checks">
-                <li>4 more characters (Corgi, Dino, Pigeon, Capybara) + their sounds</li>
-                <li>4 more plane colours (Blue, Green, Pink, Black)</li>
-                <li>4 more banner themes (Midnight, Sunset, Mint, Bubblegum)</li>
-                <li>Faster fly-bys (1.5× &amp; 2× speed)</li>
-                <li>Combine several calendars at once</li>
-              </ul>
-
-              <button id="buy-btn" class="btn btn-primary btn-block btn-lg">Unlock Quakpit Pro — $4.99</button>
-
-              <div class="have-key">
-                <span class="muted small">Already have a license key?</span>
-                <div class="row">
-                  <input id="license-key" class="input" type="text" placeholder="Paste your license key" />
-                  <button id="activate-btn" class="btn btn-outline">Activate</button>
-                </div>
-              </div>
-            </div>
-
-            <div id="license-active" class="hidden">
-              <p class="active-note">Pro is active on this device.</p>
-              <button id="deactivate-btn" class="btn btn-outline">Deactivate this device</button>
-            </div>
-
-            <p id="license-error" class="warn hidden"></p>
-          </div>
-
-          <p class="pro-foot muted small">Pay once by card via Polar — no subscription. Activates on one device. Thanks for supporting the duck. 🦆</p>
         </section>
       </main>
     </div>

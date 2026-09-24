@@ -25,7 +25,6 @@
   "dependencies": {
     "electron-updater": "^6.8.3",
     "httpntlm": "^1.8.13",
-    "ical.js": "^2.2.1",
-    "node-machine-id": "^1.1.12"
+    "ical.js": "^2.2.1"
   }
 }

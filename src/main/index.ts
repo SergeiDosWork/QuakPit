@@ -7,7 +7,6 @@ import { getPrefs } from './store'
 import { startScheduler } from './scheduler'
 import { initAutoUpdate } from './updater'
 import * as calendar from './calendar'
-import * as license from './license'
 
 // Only allow a single running instance of Quakpit.
 if (!app.requestSingleInstanceLock()) {
@@ -59,9 +58,6 @@ app.whenReady().then(async () => {
   // Restore any saved calendar sessions (Google opt-in, iCloud creds), then watch.
   await calendar.init().catch(() => undefined)
   startScheduler()
-
-  // Re-validate the license online (offline grace keeps premium working if this fails).
-  void license.validate()
 
   // Check GitHub Releases for updates (packaged builds only).
   initAutoUpdate()
