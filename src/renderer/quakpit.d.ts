@@ -19,6 +19,7 @@ declare global {
     soundEnabled: boolean
     staySignedIn: boolean
     launchAtLogin: boolean
+    hideFromDock: boolean
     targetDisplay: 'cursor' | 'primary'
     theme: string
     flier: string

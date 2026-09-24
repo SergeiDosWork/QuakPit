@@ -5,10 +5,12 @@ import { getPrefs } from '../store'
 /**
  * Showing the transparent overlay can make macOS drop the app to "accessory"
  * (Dock icon disappears) in packaged builds. Re-assert the Dock icon so the app
- * always stays reachable. No-op when already visible (no flicker).
+ * always stays reachable. No-op when already visible (no flicker). Skipped when
+ * the user chose "hide from Dock" — there the accessory state is intentional.
  */
 function keepDockVisible(): void {
   if (process.platform !== 'darwin' || !app.dock) return
+  if (getPrefs().hideFromDock) return
   void app.dock.show()
 }
 

@@ -9,6 +9,7 @@ export type Prefs = {
   soundEnabled: boolean
   staySignedIn: boolean
   launchAtLogin: boolean
+  hideFromDock: boolean // menu-bar-only mode: no Dock icon, no Cmd+Tab
   targetDisplay: 'cursor' | 'primary'
   theme: string
   flier: string
@@ -28,6 +29,7 @@ const DEFAULT_PREFS: Prefs = {
   soundEnabled: true,
   staySignedIn: true,
   launchAtLogin: false,
+  hideFromDock: false,
   targetDisplay: 'cursor',
   theme: 'classic',
   flier: 'duck-plane',

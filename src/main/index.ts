@@ -32,10 +32,14 @@ function sendTestFlight(): void {
 }
 
 app.whenReady().then(async () => {
-  // Quakpit is a regular app: it shows in the Dock and Cmd+Tab. (It also keeps
-  // a menu-bar icon for quick access, and stays running in the background.)
-  // Lock the Dock icon on so showing the overlay never drops us to accessory mode.
-  if (process.platform === 'darwin') app.dock?.show()
+  // Quakpit is a regular app by default: it shows in the Dock and Cmd+Tab, and
+  // also keeps a menu-bar icon. The "hide from Dock" preference switches it to
+  // a menu-bar-only app (no Dock icon, no Cmd+Tab) — settings stay reachable
+  // through the tray. Honoured at startup and applied live from ipc.ts.
+  if (process.platform === 'darwin') {
+    if (getPrefs().hideFromDock) app.dock?.hide()
+    else app.dock?.show()
+  }
 
   registerIpc()
 

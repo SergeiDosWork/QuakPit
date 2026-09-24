@@ -31,6 +31,7 @@ const template = $<HTMLInputElement>('template')
 const displaySel = $<HTMLSelectElement>('display')
 const sound = $<HTMLInputElement>('sound')
 const login = $<HTMLInputElement>('login')
+const hideDock = $<HTMLInputElement>('hide-dock')
 const stay = $<HTMLInputElement>('stay')
 const flyAtStart = $<HTMLInputElement>('flyatstart')
 
@@ -114,6 +115,7 @@ let prefs: Prefs = {
   soundEnabled: true,
   staySignedIn: true,
   launchAtLogin: false,
+  hideFromDock: false,
   targetDisplay: 'cursor',
   theme: 'classic',
   flier: 'duck-plane',
@@ -134,6 +136,7 @@ function fillPrefs(p: Prefs): void {
   displaySel.value = p.targetDisplay
   sound.checked = p.soundEnabled
   login.checked = p.launchAtLogin
+  hideDock.checked = p.hideFromDock
   stay.checked = p.staySignedIn
   speedChoices.set(p.speed)
   flyAtStart.checked = p.flyAtStart
@@ -150,6 +153,7 @@ displaySel.addEventListener('change', () =>
 )
 sound.addEventListener('change', () => void q.setPrefs({ soundEnabled: sound.checked }))
 login.addEventListener('change', () => void q.setPrefs({ launchAtLogin: login.checked }))
+hideDock.addEventListener('change', () => void q.setPrefs({ hideFromDock: hideDock.checked }))
 stay.addEventListener('change', () => void q.setPrefs({ staySignedIn: stay.checked }))
 flyAtStart.addEventListener('change', () => void q.setPrefs({ flyAtStart: flyAtStart.checked }))
 

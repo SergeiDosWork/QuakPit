@@ -35,6 +35,10 @@ export function registerIpc(): void {
         /* ignore: not permitted in dev / sandboxed runs */
       }
     }
+    if (patch.hideFromDock !== undefined && process.platform === 'darwin') {
+      if (patch.hideFromDock) void app.dock?.hide()
+      else void app.dock?.show()
+    }
     if (patch.staySignedIn === true) google.persistIfPossible()
     if (patch.staySignedIn === false) google.forgetPersisted()
     return prefs
