@@ -4,6 +4,7 @@ import { openSettings } from './windows/settings'
 import { createTray } from './tray'
 import { registerIpc } from './ipc'
 import { getPrefs } from './store'
+import { t } from './i18n'
 import { startScheduler } from './scheduler'
 import { initAutoUpdate } from './updater'
 import * as calendar from './calendar'
@@ -25,7 +26,7 @@ app.on('second-instance', () => openSettings())
 /** Demo / manual flight (also used until a meeting triggers automatically). */
 function sendTestFlight(): void {
   flyAcross({
-    message: 'Call with Jack in 5 minutes',
+    message: t('demo.message'),
     durationMs: 9000,
     sound: getPrefs().soundEnabled
   })

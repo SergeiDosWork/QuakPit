@@ -1,5 +1,6 @@
 import { app, dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
+import { t } from './i18n'
 
 const CHECK_INTERVAL = 6 * 60 * 60 * 1000
 
@@ -20,18 +21,18 @@ export function initAutoUpdate(): void {
     autoUpdater.autoInstallOnAppQuit = true
 
     autoUpdater.on('update-downloaded', (info) => {
-      const buttons = FORCE_UPDATE ? ['Restart now'] : ['Restart now', 'Later']
+      const restartLabel = t('updater.restartNow')
+      const laterLabel = t('updater.later')
+      const buttons = FORCE_UPDATE ? [restartLabel] : [restartLabel, laterLabel]
       void dialog
         .showMessageBox({
           type: 'info',
           buttons,
           defaultId: 0,
           cancelId: FORCE_UPDATE ? 0 : 1,
-          title: 'Update available',
-          message: `Quakpit ${info.version} is ready 🦆`,
-          detail: FORCE_UPDATE
-            ? 'A required update has been downloaded. Quakpit will restart to update.'
-            : 'A new version has been downloaded. Restart Quakpit to update — or it will update next time you quit.'
+          title: t('updater.title'),
+          message: t('updater.ready', { version: info.version }),
+          detail: FORCE_UPDATE ? t('updater.detail.required') : t('updater.detail.optional')
         })
         .then((r) => {
           if (FORCE_UPDATE || r.response === 0) autoUpdater.quitAndInstall()

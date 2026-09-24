@@ -13,6 +13,8 @@ import * as google from './calendar/google'
 import * as calendar from './calendar'
 import { flyAcross } from './windows/overlay'
 import { startScheduler } from './scheduler'
+import { t } from './i18n'
+import { rebuildTray } from './tray'
 
 const IMAGE_MIME: Record<string, string> = {
   '.png': 'image/png',
@@ -41,6 +43,7 @@ export function registerIpc(): void {
     }
     if (patch.staySignedIn === true) google.persistIfPossible()
     if (patch.staySignedIn === false) google.forgetPersisted()
+    if (patch.lang !== undefined) rebuildTray()
     return prefs
   })
 
@@ -89,7 +92,7 @@ export function registerIpc(): void {
   ipcMain.handle('flight:test', () => {
     const prefs = getPrefs()
     flyAcross({
-      message: 'Call with Jack in 5 minutes',
+      message: t('demo.message'),
       durationMs: 9000,
       sound: prefs.soundEnabled
     })
@@ -99,9 +102,9 @@ export function registerIpc(): void {
   // --- Custom flier image (Pro): the user's own plane picture, stored locally ---
   ipcMain.handle('flier:import', async () => {
     const res = await dialog.showOpenDialog({
-      title: 'Choose a plane image',
+      title: t('dialog.chooseImage'),
       properties: ['openFile'],
-      filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp'] }]
+      filters: [{ name: t('dialog.images'), extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp'] }]
     })
     const file = res.filePaths[0]
     if (res.canceled || !file) return { prefs: getPrefs(), dataUrl: loadCustomFlier() }

@@ -1,6 +1,7 @@
 import { getPrefs } from './store'
 import { listUpcoming, type UpcomingEvent } from './calendar'
 import { flyAcross } from './windows/overlay'
+import { t } from './i18n'
 
 let pollTimer: NodeJS.Timeout | null = null
 let tickTimer: NodeJS.Timeout | null = null
@@ -71,7 +72,7 @@ function tick(): void {
       if (startDue && !fired.has(startKey)) {
         fired.add(startKey)
         flyAcross({
-          message: `${ev.title} starting now`,
+          message: t('scheduler.startingNow', { title: ev.title }),
           durationMs: 9000,
           sound: prefs.soundEnabled
         })
