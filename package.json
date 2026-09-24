@@ -1,7 +1,7 @@
 {
   "name": "quakpit",
   "version": "0.1.0",
-  "description": "Утка на самолёте пролетает по экрану с баннером-напоминанием о встрече. A little duck in a plane flies across your screen towing a banner that reminds you of your next meeting.",
+  "description": "Напоминание о встрече: утка на самолёте перелетает экран с баннером. Календари Google, iCloud, Exchange, iCal; интерфейс RU/EN. A duck in a plane flies across your screen towing a meeting-reminder banner. Google, iCloud, Exchange & iCal; RU/EN UI.",
   "author": "SergeiDos",
   "license": "MIT",
   "main": "./out/main/index.js",
