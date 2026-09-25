@@ -6,8 +6,8 @@
 // the exact https URL the user configured. Type 1 and type 3 messages ride one
 // keep-alive socket, as the NTLM protocol expects.
 
-import { Agent, request as httpRequest } from 'node:http'
-import { request as httpsRequest } from 'node:https'
+import { Agent as HttpAgent, request as httpRequest } from 'node:http'
+import { Agent as HttpsAgent, request as httpsRequest } from 'node:https'
 import {
   createType1Message,
   createType3Message,
@@ -35,7 +35,7 @@ function send(
   headers: Record<string, string>,
   body: string | undefined,
   timeoutMs: number,
-  agent: Agent
+  agent: HttpAgent
 ): Promise<RawResponse> {
   return new Promise<RawResponse>((resolve, reject) => {
     const options = {
@@ -74,8 +74,13 @@ export async function ntlmPost(options: NtlmPostOptions): Promise<NtlmPostResult
   }
   const timeoutMs = options.timeoutMs ?? 15_000
   // One single-slot keep-alive agent: the type 3 message must reuse the same
-  // socket the type 1 message went out on.
-  const agent = new Agent({ keepAlive: true, maxSockets: 1 })
+  // socket the type 1 message went out on. The agent must match the URL's
+  // protocol — Node throws `Protocol "https:" not supported` when an http.Agent
+  // is handed to an https request.
+  const agent =
+    url.protocol === 'https:'
+      ? new HttpsAgent({ keepAlive: true, maxSockets: 1 })
+      : new HttpAgent({ keepAlive: true, maxSockets: 1 })
 
   try {
     const baseHeaders: Record<string, string> = { Connection: 'keep-alive', ...(options.headers ?? {}) }

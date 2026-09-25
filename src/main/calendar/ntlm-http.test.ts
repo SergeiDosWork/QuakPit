@@ -96,4 +96,20 @@ describe('ntlmPost', () => {
       /status 503/
     )
   })
+
+  it('drives https targets with a TLS-capable agent (regression: http.Agent → "Protocol not supported")', async () => {
+    // The local server is plaintext http, but the URL says https: — the request
+    // must get past ClientRequest construction (old bug: an http.Agent handed
+    // to https.request threw "Protocol \"https:\" not supported") and fail at
+    // the TLS layer instead.
+    const httpsUrl = origin.replace('http://', 'https://')
+    let error: Error | null = null
+    try {
+      await ntlmPost({ url: httpsUrl, ...CREDENTIALS, body: '<FindItem/>', timeoutMs: 5000 })
+    } catch (e) {
+      error = e as Error
+    }
+    expect(error).not.toBeNull() // TLS against a plaintext server must still fail
+    expect(String(error?.message)).not.toMatch(/Protocol .+ not supported/)
+  })
 })
