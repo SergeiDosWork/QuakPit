@@ -6,7 +6,6 @@ import { registerIpc } from './ipc'
 import { getPrefs } from './store'
 import { t } from './i18n'
 import { startScheduler } from './scheduler'
-import { initAutoUpdate } from './updater'
 import * as calendar from './calendar'
 
 // Only allow a single running instance of Quakpit.
@@ -63,9 +62,6 @@ app.whenReady().then(async () => {
   // Restore any saved calendar sessions (Google opt-in, iCloud creds), then watch.
   await calendar.init().catch(() => undefined)
   startScheduler()
-
-  // Check GitHub Releases for updates (packaged builds only).
-  initAutoUpdate()
 })
 
 // Re-open the control window when the app is activated (macOS).

@@ -7,3 +7,4 @@ build/icon.png
 *.log
 .DS_Store
 oauth-credentials.json
+.idea/

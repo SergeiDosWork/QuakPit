@@ -1,8 +1,8 @@
 // On-premises Microsoft Exchange calendar provider (EWS / SOAP over HTTPS).
 // Requests go straight from this Mac to the user's Exchange server: Basic auth
-// first, automatic upgrade to NTLMv2 (httpntlm) when the server asks for it.
+// first, automatic upgrade to NTLMv2 (ntlm-http.ts) when the server asks for it.
 import { net } from 'electron'
-import * as ntlm from 'httpntlm'
+import { NtlmRedirectError, ntlmPost } from './ntlm-http'
 import { clearExchange, loadExchange, saveExchange } from '../store'
 import {
   findItemError,
@@ -62,30 +62,27 @@ async function postBasic(c: ExchangeConfig, body: string): Promise<RawResponse> 
   return { status: res.status, wwwAuthenticate: res.headers.get('www-authenticate'), text: await res.text() }
 }
 
-/** POST with a full NTLMv2 handshake (httpntlm drives the Node HTTP stack). */
+/** POST with a full NTLMv2 handshake. The handshake never follows redirects:
+ * the credentials only ever travel to the exact https URL the user configured. */
 async function postViaNtlm(c: ExchangeConfig, body: string): Promise<string> {
   const { username, domain } = splitUsername(c.username)
-  return new Promise<string>((resolve, reject) => {
-    ntlm.post(
-      {
-        url: c.serverUrl,
-        username,
-        password: c.password,
-        domain,
-        workstation: '',
-        headers: { 'Content-Type': 'text/xml; charset=utf-8' },
-        body,
-        timeout: TIMEOUT_MS
-      },
-      (err, r) => {
-        if (err) {
-          reject(new Error(t('exchange.unreachable')))
-        } else {
-          resolve(r.body)
-        }
-      }
-    )
-  })
+  try {
+    const res = await ntlmPost({
+      url: c.serverUrl,
+      username,
+      password: c.password,
+      domain,
+      workstation: '',
+      headers: { 'Content-Type': 'text/xml; charset=utf-8' },
+      body,
+      timeoutMs: TIMEOUT_MS
+    })
+    return res.body
+  } catch (e) {
+    if (e instanceof NtlmRedirectError) throw new Error(t('exchange.redirect'))
+    if ((e as Error).name === 'TimeoutError') throw new Error(t('exchange.timeout'))
+    throw new Error(t('exchange.unreachable'))
+  }
 }
 
 function describeStatus(status: number): string {

@@ -1,9 +1,11 @@
 import ICAL from 'ical.js'
 import { clearICloud, loadICloud, saveICloud } from '../store'
+import { isTrustedIcloudUrl } from './net-guard'
 import { t } from '../i18n'
 import type { ProviderStatus, UpcomingEvent } from './types'
 
 const ROOT = 'https://caldav.icloud.com'
+const TIMEOUT_MS = 15_000
 
 type Creds = { username: string; password: string }
 type Cal = { url: string; name: string }
@@ -27,7 +29,11 @@ function authHeader(c: Creds): string {
 
 async function dav(url: string, method: string, body: string, depth = '0'): Promise<string> {
   if (!creds) throw new Error(t('icloud.notConnected'))
-  const res = await fetch(url, {
+  // URLs come straight out of the server's XML responses: before sending the
+  // Basic credentials anywhere, pin the target to https on *.icloud.com.
+  const target = new URL(url)
+  if (!isTrustedIcloudUrl(target)) throw new Error(t('icloud.redirect'))
+  const res = await fetch(target, {
     method,
     headers: {
       Authorization: authHeader(creds),
@@ -35,8 +41,10 @@ async function dav(url: string, method: string, body: string, depth = '0'): Prom
       Depth: depth
     },
     body,
-    redirect: 'follow'
+    redirect: 'follow',
+    signal: AbortSignal.timeout(TIMEOUT_MS)
   })
+  if (!isTrustedIcloudUrl(res.url)) throw new Error(t('icloud.redirect'))
   if (res.status === 401) throw new Error(t('icloud.wrongCreds'))
   if (res.status !== 207 && !res.ok) throw new Error(t('icloud.davError', { status: res.status }))
   return res.text()

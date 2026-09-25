@@ -34,7 +34,7 @@ mac:
   target:
     - target: dmg
       arch: [universal]
-    # zip is required for macOS auto-update (Squirrel.Mac updates from the zip).
+    # zip is kept as a direct-download release artifact alongside the dmg.
     - target: zip
       arch: [universal]
 
@@ -60,7 +60,8 @@ dmg:
     - { x: 150, y: 175, type: file }
     - { x: 450, y: 175, type: link, path: /Applications }
 
-# Auto-update feed (electron-updater) — GitHub Releases of this repo.
+# Release target (used by `electron-builder --publish`): GitHub Releases of
+# this repo. In-app auto-update was removed — updates are manual downloads.
 publish:
   provider: github
   owner: SergeiDosWork

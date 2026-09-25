@@ -166,6 +166,7 @@ export const ru: Dict = {
   'icloud.notConnected': 'iCloud не подключён',
   'icloud.wrongCreds': 'Неверный Apple ID или пароль приложения.',
   'icloud.davError': 'Ошибка CalDAV iCloud ({status})',
+  'icloud.redirect': 'Сервер iCloud указал на недоверенный адрес. Запрос прерван в целях безопасности.',
   'icloud.noAccount': 'Не удалось найти вашу учётную запись iCloud.',
   'icloud.noCalendars': 'Не удалось найти ваши календари iCloud.',
   'icloud.enterCreds': 'Введите Apple ID и пароль приложения.',
@@ -174,12 +175,15 @@ export const ru: Dict = {
   // --- provider errors: ical ---
   'ical.invalidLink': 'Введите корректную ссылку на календарь (https или webcal).',
   'ical.fetchFailed': 'Не удалось загрузить календарь ({status}).',
+  'ical.httpsOnly': 'Используйте ссылку https:// — обычный http:// не принимается в целях безопасности.',
   'ical.notIcal': 'По этой ссылке не iCal-календарь (.ics).',
   'ical.fallbackName': 'Календарь',
 
   // --- provider errors: exchange / ews ---
   'exchange.timeout': 'Сервер Exchange не ответил за отведённое время.',
   'exchange.unreachable': 'Не удалось связаться с сервером Exchange (сеть, VPN или недоверенный сертификат).',
+  'exchange.redirect':
+    'Сервер Exchange попытался перенаправить вход на другой адрес. Запрос прерван в целях безопасности.',
   'exchange.status401': 'Сервер отклонил вход. Проверьте имя пользователя и пароль.',
   'exchange.status403': 'Доступ запрещён — возможно, администратор отключил EWS для вашей учётной записи.',
   'exchange.status404': 'По этому адресу EWS не найден. Уточните адрес сервера у IT.',
@@ -192,15 +196,6 @@ export const ru: Dict = {
   'ews.enterAddress': 'Введите адрес сервера Exchange.',
   'ews.badAddress': 'Это не похоже на адрес сервера.',
   'ews.useHttps': 'Используйте адрес https:// — пароль отправляется на этот сервер.',
-
-  // --- updater ---
-  'updater.title': 'Доступно обновление',
-  'updater.ready': 'Quakpit {version} готов 🦆',
-  'updater.restartNow': 'Перезапустить сейчас',
-  'updater.later': 'Позже',
-  'updater.detail.required': 'Загружено обязательное обновление. Quakpit перезапустится, чтобы установить его.',
-  'updater.detail.optional':
-    'Загружена новая версия. Перезапустите Quakpit для обновления — или оно установится при следующем закрытии приложения.',
 
   // --- dialogs ---
   'dialog.chooseImage': 'Выберите изображение самолёта',

@@ -11,7 +11,7 @@
 
 <p align="center">
   <strong>Бесплатно и с открытым кодом.</strong> macOS · интерфейс на русском и английском.<br/>
-  Автор — <a href="https://github.com/SergeiDosWork/QuakPit"><strong>SergeiDos</strong></a> 🐣
+  Доработал — <a href="https://github.com/SergeiDosWork/QuakPit"><strong>SergeiDos</strong></a> 🐣
 </p>
 
 <p align="center">
@@ -150,4 +150,4 @@ site/             статический лендинг (не входит в с
 
 [MIT](LICENSE) © [SergeiDos](https://github.com/SergeiDosWork/QuakPit)
 
-<p align="center"><sub>Quakpit основан на оригинальном приложении — <a href="https://github.com/SergeiDosWork/QuakPit">github.com/SergeiDosWork/QuakPit</a></sub></p>
+<p align="center"><sub>Quakpit основан на оригинальном приложении — <a href="https://github.com/Ooble-Studio/QuakPit">github.com/Ooble-Studio/QuakPit</a></sub></p>

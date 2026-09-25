@@ -170,6 +170,7 @@ export const en: Dict = {
   'icloud.notConnected': 'iCloud not connected',
   'icloud.wrongCreds': 'Wrong Apple ID or app-specific password.',
   'icloud.davError': 'iCloud CalDAV error ({status})',
+  'icloud.redirect': 'The iCloud server pointed at an untrusted address. The request was stopped for your safety.',
   'icloud.noAccount': 'Could not find your iCloud account.',
   'icloud.noCalendars': 'Could not find your iCloud calendars.',
   'icloud.enterCreds': 'Enter your Apple ID and an app-specific password.',
@@ -178,12 +179,15 @@ export const en: Dict = {
   // --- provider errors: ical ---
   'ical.invalidLink': 'Enter a valid calendar link (https or webcal).',
   'ical.fetchFailed': 'Could not fetch the calendar ({status}).',
+  'ical.httpsOnly': 'Use an https:// link — plain http:// feeds are not accepted for safety.',
   'ical.notIcal': 'That link is not an iCal (.ics) calendar.',
   'ical.fallbackName': 'Calendar',
 
   // --- provider errors: exchange / ews ---
   'exchange.timeout': 'The Exchange server did not respond in time.',
   'exchange.unreachable': 'Cannot reach the Exchange server (network, VPN or untrusted certificate).',
+  'exchange.redirect':
+    'The Exchange server tried to redirect the login to another address. The request was stopped for your safety.',
   'exchange.status401': 'The server rejected the login. Check your username and password.',
   'exchange.status403': 'Access denied — EWS may be disabled for your account by your administrator.',
   'exchange.status404': 'EWS not found at this address. Check the server address with IT.',
@@ -196,15 +200,6 @@ export const en: Dict = {
   'ews.enterAddress': 'Enter your Exchange server address.',
   'ews.badAddress': 'That does not look like a server address.',
   'ews.useHttps': 'Use an https:// address — your password is sent to this server.',
-
-  // --- updater ---
-  'updater.title': 'Update available',
-  'updater.ready': 'Quakpit {version} is ready 🦆',
-  'updater.restartNow': 'Restart now',
-  'updater.later': 'Later',
-  'updater.detail.required': 'A required update has been downloaded. Quakpit will restart to update.',
-  'updater.detail.optional':
-    'A new version has been downloaded. Restart Quakpit to update — or it will update next time you quit.',
 
   // --- dialogs ---
   'dialog.chooseImage': 'Choose a plane image',

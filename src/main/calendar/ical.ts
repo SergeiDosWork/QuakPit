@@ -1,10 +1,14 @@
 import { randomUUID } from 'node:crypto'
 import ICAL from 'ical.js'
 import { loadIcalFeeds, saveIcalFeeds } from '../store'
+import { normalizeFeedUrl, readBodyWithLimit, FeedUrlError } from './net-guard'
 import { t, tPlural } from '../i18n'
 import type { ProviderStatus, UpcomingEvent } from './types'
 
 export type Feed = { id: string; name: string; url: string }
+
+const FETCH_TIMEOUT_MS = 15_000
+const MAX_FEED_BYTES = 10 * 1024 * 1024
 
 let feeds: Feed[] | undefined // undefined = not loaded yet
 
@@ -23,13 +27,24 @@ function persist(): void {
   saveIcalFeeds(JSON.stringify(load()))
 }
 
-/** Accepts http(s) and webcal:// links; returns the .ics text (and validates it). */
+/** Accepts https and webcal:// links; returns the .ics text (and validates it).
+ * Plain http:// is refused (MITM could forge meeting reminders), redirects may
+ * only land back on https, and the response is size-capped. */
 async function fetchFeed(url: string): Promise<string> {
-  const normalized = url.trim().replace(/^webcal:\/\//i, 'https://')
-  if (!/^https?:\/\//i.test(normalized)) throw new Error(t('ical.invalidLink'))
-  const res = await fetch(normalized, { redirect: 'follow', cache: 'no-store' })
+  let normalized: string
+  try {
+    normalized = normalizeFeedUrl(url)
+  } catch (e) {
+    throw new Error(t((e as FeedUrlError).reason === 'insecure' ? 'ical.httpsOnly' : 'ical.invalidLink'))
+  }
+  const res = await fetch(normalized, {
+    redirect: 'follow',
+    cache: 'no-store',
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
+  })
   if (!res.ok) throw new Error(t('ical.fetchFailed', { status: res.status }))
-  const text = await res.text()
+  if (!res.url.startsWith('https://')) throw new Error(t('ical.httpsOnly'))
+  const text = await readBodyWithLimit(res, MAX_FEED_BYTES)
   if (!/BEGIN:VCALENDAR/i.test(text)) throw new Error(t('ical.notIcal'))
   return text
 }

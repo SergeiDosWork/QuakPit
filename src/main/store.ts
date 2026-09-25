@@ -57,6 +57,70 @@ function sanitizeLang(value: unknown): LangPref {
   return value === 'ru' || value === 'en' ? value : 'auto'
 }
 
+// Hard caps keep a hostile prefs.json (written through a compromised renderer)
+// from bloating the file or smuggling long strings into the UI.
+const MAX_TEMPLATE = 300
+const MAX_ID = 50
+const MAX_CUSTOM_NAME = 200
+
+function asBoolean(value: unknown): boolean | undefined {
+  return typeof value === 'boolean' ? value : undefined
+}
+
+function asString(value: unknown, max: number): string | undefined {
+  return typeof value === 'string' ? value.slice(0, max) : undefined
+}
+
+function asEnum<T extends string>(value: unknown, allowed: readonly T[]): T | undefined {
+  return typeof value === 'string' && (allowed as readonly string[]).includes(value) ? (value as T) : undefined
+}
+
+/** Whitelist + type/range checks for anything arriving over IPC or from disk.
+ * Unknown keys are dropped, numbers clamped, enums fall back, strings capped.
+ * Field-by-field (not all-or-nothing) so a partial patch still applies. */
+export function sanitizePrefs(patch: unknown): Partial<Prefs> {
+  if (typeof patch !== 'object' || patch === null) return {}
+  const raw = patch as Record<string, unknown>
+  const out: Partial<Prefs> = {}
+
+  if (typeof raw.leadMinutes === 'number' && Number.isFinite(raw.leadMinutes)) {
+    out.leadMinutes = Math.min(60, Math.max(0, Math.round(raw.leadMinutes)))
+  }
+  if (typeof raw.messageTemplate === 'string') out.messageTemplate = raw.messageTemplate.slice(0, MAX_TEMPLATE)
+  const soundEnabled = asBoolean(raw.soundEnabled)
+  if (soundEnabled !== undefined) out.soundEnabled = soundEnabled
+  const staySignedIn = asBoolean(raw.staySignedIn)
+  if (staySignedIn !== undefined) out.staySignedIn = staySignedIn
+  const launchAtLogin = asBoolean(raw.launchAtLogin)
+  if (launchAtLogin !== undefined) out.launchAtLogin = launchAtLogin
+  const hideFromDock = asBoolean(raw.hideFromDock)
+  if (hideFromDock !== undefined) out.hideFromDock = hideFromDock
+  const flyAtStart = asBoolean(raw.flyAtStart)
+  if (flyAtStart !== undefined) out.flyAtStart = flyAtStart
+  const targetDisplay = asEnum(raw.targetDisplay, ['cursor', 'primary'] as const)
+  if (targetDisplay !== undefined) out.targetDisplay = targetDisplay
+  const speed = asEnum(raw.speed, ['normal', 'fast', 'ultra'] as const)
+  if (speed !== undefined) out.speed = speed
+  const theme = asString(raw.theme, MAX_ID)
+  if (theme !== undefined) out.theme = theme
+  const flier = asString(raw.flier, MAX_ID)
+  if (flier !== undefined) out.flier = flier
+  const font = asString(raw.font, MAX_ID)
+  if (font !== undefined) out.font = font
+  const soundPack = asString(raw.soundPack, MAX_ID)
+  if (soundPack !== undefined) out.soundPack = soundPack
+  const flierHead = asString(raw.flierHead, MAX_ID)
+  if (flierHead !== undefined) out.flierHead = flierHead
+  const flierColor = asString(raw.flierColor, MAX_ID)
+  if (flierColor !== undefined) out.flierColor = flierColor
+  const customFlierName = asString(raw.customFlierName, MAX_CUSTOM_NAME)
+  if (customFlierName !== undefined) out.customFlierName = customFlierName
+  const lang = asEnum(raw.lang, ['auto', 'ru', 'en'] as const)
+  if (lang !== undefined) out.lang = lang
+
+  return out
+}
+
 function dataDir(): string {
   const dir = app.getPath('userData')
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
@@ -83,14 +147,15 @@ export function getPrefs(): Prefs {
   } catch {
     raw = {}
   }
-  // Defaults (with a localized banner template) sit underneath whatever was saved —
-  // an existing user's messageTemplate is NEVER rewritten.
-  cache = { ...defaultPrefs(sanitizeLang(raw.lang)), ...raw }
+  // Defaults (with a localized banner template) sit underneath whatever was
+  // saved — an existing user's messageTemplate is NEVER rewritten. The saved
+  // file is sanitized too: it may predate the whitelist (or be tampered with).
+  cache = { ...defaultPrefs(sanitizeLang(raw.lang)), ...sanitizePrefs(raw) }
   return cache as Prefs
 }
 
 export function setPrefs(patch: Partial<Prefs>): Prefs {
-  const next: Prefs = { ...getPrefs(), ...patch }
+  const next: Prefs = { ...getPrefs(), ...sanitizePrefs(patch) }
   cache = next
   try {
     writeFileSync(prefsPath(), JSON.stringify(next, null, 2), 'utf8')

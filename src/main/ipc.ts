@@ -4,6 +4,7 @@ import { basename, extname } from 'node:path'
 import {
   getPrefs,
   setPrefs,
+  sanitizePrefs,
   type Prefs,
   saveCustomFlier,
   loadCustomFlier,
@@ -29,21 +30,23 @@ export function registerIpc(): void {
   ipcMain.handle('prefs:get', () => getPrefs())
 
   ipcMain.handle('prefs:set', (_e, patch: Partial<Prefs>) => {
-    const prefs = setPrefs(patch)
-    if (patch.launchAtLogin !== undefined && app.isPackaged) {
+    // The renderer is untrusted: only whitelisted, type-checked fields survive.
+    const clean = sanitizePrefs(patch)
+    const prefs = setPrefs(clean)
+    if (clean.launchAtLogin !== undefined && app.isPackaged) {
       try {
-        app.setLoginItemSettings({ openAtLogin: patch.launchAtLogin })
+        app.setLoginItemSettings({ openAtLogin: clean.launchAtLogin })
       } catch {
         /* ignore: not permitted in dev / sandboxed runs */
       }
     }
-    if (patch.hideFromDock !== undefined && process.platform === 'darwin') {
-      if (patch.hideFromDock) void app.dock?.hide()
+    if (clean.hideFromDock !== undefined && process.platform === 'darwin') {
+      if (clean.hideFromDock) void app.dock?.hide()
       else void app.dock?.show()
     }
-    if (patch.staySignedIn === true) google.persistIfPossible()
-    if (patch.staySignedIn === false) google.forgetPersisted()
-    if (patch.lang !== undefined) rebuildTray()
+    if (clean.staySignedIn === true) google.persistIfPossible()
+    if (clean.staySignedIn === false) google.forgetPersisted()
+    if (clean.lang !== undefined) rebuildTray()
     return prefs
   })
 
