@@ -4,6 +4,7 @@
 import { net } from 'electron'
 import { NtlmHandshakeError, NtlmRedirectError, ntlmPost } from './ntlm-http'
 import { clearExchange, loadExchange, saveExchange } from '../store'
+import { attachDetails } from '../../shared/error-details'
 import {
   findItemError,
   findItemXml,
@@ -40,8 +41,27 @@ function loadCreds(): void {
 
 type RawResponse = { status: number; wwwAuthenticate: string | null; text: string }
 
+/** Short technical label for a network failure (timeout, TLS, DNS…). Never
+ * includes credentials — only codes, names and Chromium's cause message. */
+function networkKind(e: unknown): string {
+  const err = e as Error & { code?: string; cause?: { code?: string; message?: string } }
+  if (err.name === 'TimeoutError') return `timeout after ${TIMEOUT_MS}ms`
+  const code = err.code ?? err.cause?.code
+  return code ?? err.name
+}
+
+/** Scheme names from a WWW-Authenticate header ("Negotiate, NTLM"). */
+function authSchemes(wwwAuthenticate: string | null): string {
+  if (!wwwAuthenticate) return 'none'
+  return wwwAuthenticate
+    .split(',')
+    .map((s) => s.trim().split(/\s+/)[0])
+    .filter(Boolean)
+    .join(', ')
+}
+
 /** POST via Chromium's stack — honours the macOS Keychain (corporate CAs). */
-async function postBasic(c: ExchangeConfig, body: string): Promise<RawResponse> {
+async function postBasic(c: ExchangeConfig, body: string, trace: string[]): Promise<RawResponse> {
   let res: Response
   try {
     res = await net.fetch(c.serverUrl, {
@@ -54,18 +74,24 @@ async function postBasic(c: ExchangeConfig, body: string): Promise<RawResponse> 
       signal: AbortSignal.timeout(TIMEOUT_MS)
     })
   } catch (e) {
-    if ((e as Error).name === 'TimeoutError') {
+    const err = e as Error & { cause?: { message?: string } }
+    trace.push(
+      `basic → network error (${networkKind(e)}): ${err.message}${err.cause?.message ? ` — ${err.cause.message}` : ''}`
+    )
+    if (err.name === 'TimeoutError') {
       throw new Error(t('exchange.timeout'))
     }
     throw new Error(t('exchange.unreachable'))
   }
+  trace.push(`basic → HTTP ${res.status}${res.headers.get('www-authenticate') ? `; server offers: ${authSchemes(res.headers.get('www-authenticate'))}` : ''}`)
   return { status: res.status, wwwAuthenticate: res.headers.get('www-authenticate'), text: await res.text() }
 }
 
 /** POST with a full NTLMv2 handshake. The handshake never follows redirects:
  * the credentials only ever travel to the exact https URL the user configured. */
-async function postViaNtlm(c: ExchangeConfig, body: string): Promise<string> {
+async function postViaNtlm(c: ExchangeConfig, body: string, trace: string[]): Promise<string> {
   const { username, domain } = splitUsername(c.username)
+  trace.push(`ntlm login parsed: user=${username}, domain=${domain || '(empty)'}`)
   try {
     const res = await ntlmPost({
       url: c.serverUrl,
@@ -75,7 +101,8 @@ async function postViaNtlm(c: ExchangeConfig, body: string): Promise<string> {
       workstation: '',
       headers: { 'Content-Type': 'text/xml; charset=utf-8' },
       body,
-      timeoutMs: TIMEOUT_MS
+      timeoutMs: TIMEOUT_MS,
+      trace
     })
     return res.body
   } catch (e) {
@@ -108,16 +135,27 @@ function httpStatusError(res: RawResponse): Error {
   return new Error(describeStatus(res.status))
 }
 
-/** One authenticated POST, upgrading Basic → NTLM when the server demands it. */
+/** One authenticated POST, upgrading Basic → NTLM when the server demands it.
+ * Every step is recorded in a sanitized diagnostic trace (endpoint, login as
+ * parsed, HTTP statuses, offered auth schemes, TLS/network error codes — never
+ * the password or NTLM messages); on failure the trace rides along in the
+ * error message so the settings window can show what actually happened. */
 async function postEws(c: ExchangeConfig, body: string): Promise<string> {
-  if (c.auth === 'ntlm') return postViaNtlm(c, body)
-  const res = await postBasic(c, body)
-  if (res.status === 200) return res.text
-  if (res.status === 401 && pickAuthScheme(res.wwwAuthenticate) === 'ntlm') {
-    c.auth = 'ntlm' // remember the upgrade (persisted on success by the caller)
-    return postViaNtlm(c, body)
+  const trace: string[] = [`endpoint: ${c.serverUrl}`]
+  const { username, domain } = splitUsername(c.username)
+  trace.push(`login as parsed: ${domain ? `${domain}\\${username}` : username}`)
+  try {
+    if (c.auth === 'ntlm') return await postViaNtlm(c, body, trace)
+    const res = await postBasic(c, body, trace)
+    if (res.status === 200) return res.text
+    if (res.status === 401 && pickAuthScheme(res.wwwAuthenticate) === 'ntlm') {
+      c.auth = 'ntlm' // remember the upgrade (persisted on success by the caller)
+      return await postViaNtlm(c, body, trace)
+    }
+    throw httpStatusError(res)
+  } catch (e) {
+    throw new Error(attachDetails((e as Error).message, trace))
   }
-  throw httpStatusError(res)
 }
 
 function persist(c: ExchangeConfig): void {

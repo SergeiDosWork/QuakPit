@@ -957,6 +957,32 @@ a {
   font-size: 13px;
 }
 
+/* Collapsible diagnostic trace under the connect error (Exchange wizard). */
+.diag {
+  margin-top: 8px;
+}
+.diag summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--ink-soft);
+  user-select: none;
+}
+.diag-body {
+  margin: 8px 0;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--paper-2);
+  border: 1px solid var(--grid);
+  color: var(--ink);
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 180px;
+  overflow: auto;
+}
+
 /* =========================================================================
    Appearance live preview — DO NOT RESTYLE (kept exactly as designed)
    ========================================================================= */

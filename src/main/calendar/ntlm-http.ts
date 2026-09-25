@@ -21,6 +21,8 @@ export type NtlmPostOptions = NtlmCredentials & {
   body?: string
   headers?: Record<string, string>
   timeoutMs?: number
+  /** Caller-provided array — every handshake step is appended for diagnostics. */
+  trace?: string[]
 }
 
 export type NtlmPostResult = { status: number; body: string }
@@ -75,6 +77,25 @@ function send(
   })
 }
 
+/** Host + path of a redirect target — the query string is dropped so tokens
+ * another server might have embedded in it are never echoed into the trace. */
+function safeLocation(location: string): string {
+  try {
+    const u = new URL(location, 'https://placeholder.invalid')
+    return u.host ? u.origin + u.pathname : u.pathname
+  } catch {
+    return '<unparseable>'
+  }
+}
+
+/** One technical line about a failed handshake step, for the caller's trace. */
+function networkLine(step: string, e: unknown, timeoutMs: number): string {
+  const err = e as Error & { code?: string; cause?: { code?: string; message?: string } }
+  const kind = err.name === 'TimeoutError' ? `timeout after ${timeoutMs}ms` : (err.code ?? err.cause?.code ?? err.name)
+  const cause = err.cause?.message ? ` — ${err.cause.message}` : ''
+  return `NTLM ${step} → network error (${kind}): ${err.message}${cause}`
+}
+
 /** One full NTLM handshake + authenticated POST. Never follows redirects. */
 export async function ntlmPost(options: NtlmPostOptions): Promise<NtlmPostResult> {
   const url = new URL(options.url)
@@ -90,38 +111,48 @@ export async function ntlmPost(options: NtlmPostOptions): Promise<NtlmPostResult
     url.protocol === 'https:'
       ? new HttpsAgent({ keepAlive: true, maxSockets: 1 })
       : new HttpAgent({ keepAlive: true, maxSockets: 1 })
+  const trace = options.trace ?? []
 
   try {
     const baseHeaders: Record<string, string> = { Connection: 'keep-alive', ...(options.headers ?? {}) }
     delete baseHeaders.Authorization
 
-    const type1 = await send(
-      url,
-      { ...baseHeaders, Authorization: createType1Message(options) },
-      undefined,
-      timeoutMs,
-      agent
-    )
-    const redirect = type1.location ?? null
-    if (redirect) {
-      throw new NtlmRedirectError(`server tried to redirect the NTLM handshake to ${redirect}`)
+    let type1: RawResponse
+    try {
+      type1 = await send(url, { ...baseHeaders, Authorization: createType1Message(options) }, undefined, timeoutMs, agent)
+    } catch (e) {
+      trace.push(networkLine('type1', e, timeoutMs))
+      throw e
     }
+    if (type1.location) {
+      trace.push(`NTLM type1 → server redirect to ${safeLocation(type1.location)}`)
+      throw new NtlmRedirectError(`server tried to redirect the NTLM handshake to ${type1.location}`)
+    }
+    trace.push(`NTLM type1 → HTTP ${type1.status}`)
     if (type1.status === 200) return { status: type1.status, body: type1.body }
     if (type1.status !== 401) {
       throw new NtlmHandshakeError(type1.status)
     }
 
     const msg2: Type2Message = parseType2Message(type1.wwwAuthenticate ?? '')
-    const type3 = await send(
-      url,
-      { ...baseHeaders, Authorization: createType3Message(msg2, options) },
-      options.body,
-      timeoutMs,
-      agent
+    trace.push(
+      `NTLM challenge: flags 0x${msg2.negotiateFlags.toString(16)}, targetInfo ${
+        msg2.targetInfo ? `${msg2.targetInfo.length} bytes` : 'absent'
+      }`
     )
+
+    let type3: RawResponse
+    try {
+      type3 = await send(url, { ...baseHeaders, Authorization: createType3Message(msg2, options) }, options.body, timeoutMs, agent)
+    } catch (e) {
+      trace.push(networkLine('type3', e, timeoutMs))
+      throw e
+    }
     if (type3.location) {
+      trace.push(`NTLM type3 → server redirect to ${safeLocation(type3.location)}`)
       throw new NtlmRedirectError(`server tried to redirect the authenticated request to ${type3.location}`)
     }
+    trace.push(`NTLM type3 → HTTP ${type3.status}`)
     if (type3.status !== 200) {
       throw new NtlmHandshakeError(type3.status)
     }

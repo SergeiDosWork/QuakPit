@@ -3,6 +3,12 @@ import type { AddressInfo } from 'node:net'
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import { NtlmHandshakeError, ntlmPost } from './ntlm-http'
 
+// Asserts the diagnostic trace: every handshake step lands in the caller's
+// array so a failed connect can show exactly where it stopped.
+function trace(): string[] {
+  return []
+}
+
 // A fake EWS endpoint that speaks just enough NTLM to drive the handshake:
 // 401 + a challenge on the first POST, 200 on the second. Modes override the
 // response so each test can provoke a failure without extra listeners.
@@ -102,12 +108,15 @@ describe('ntlmPost', () => {
 
   it('classifies a rejected type 3 as an auth failure with the HTTP status', async () => {
     mode = 'authReject'
-    const err: unknown = await ntlmPost({ url: origin, ...CREDENTIALS, body: '<FindItem/>', timeoutMs: 5000 }).then(
+    const lines = trace()
+    const err: unknown = await ntlmPost({ url: origin, ...CREDENTIALS, body: '<FindItem/>', timeoutMs: 5000, trace: lines }).then(
       () => null,
       (e) => e
     )
     expect(err).toBeInstanceOf(NtlmHandshakeError)
     expect((err as NtlmHandshakeError).status).toBe(401)
+    expect(lines.some((l) => l.includes('type1') && l.includes('401'))).toBe(true)
+    expect(lines.some((l) => l.includes('type3') && l.includes('401'))).toBe(true)
   })
 
   it('drives https targets with a TLS-capable agent (regression: http.Agent → "Protocol not supported")', async () => {

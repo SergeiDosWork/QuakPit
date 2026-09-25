@@ -5,6 +5,7 @@ import { SOUNDS, playSound } from '../sounds'
 import { planeUrl, planeBaseUrl, headUrl, headThumbUrl, BLADE_URL } from '../flier-assets'
 import logoUrl from '../logo.png'
 import { createI18n, resolveLocale, type I18n } from '../../shared/i18n'
+import { splitErrorDetails, stripIpcPrefix } from '../../shared/error-details'
 import { applyI18n } from './i18n-apply'
 
 const q = window.quakpit
@@ -111,6 +112,9 @@ const xConnect = $<HTMLButtonElement>('x-connect')
 const xDisconnect = $<HTMLButtonElement>('x-disconnect')
 const xDetail = $('x-detail')
 const xError = $('x-error')
+const xDiag = $<HTMLDetailsElement>('x-diag')
+const xDiagBody = $('x-diag-body')
+const xDiagCopy = $<HTMLButtonElement>('x-diag-copy')
 // Google wizard
 const gStepForm = $('g-step-form')
 const gStepConnected = $('g-step-connected')
@@ -570,6 +574,7 @@ iDisconnect.addEventListener('click', async () => {
 // Exchange wizard
 xConnect.addEventListener('click', async () => {
   hide(xError)
+  xDiag.classList.add('hidden')
   xConnect.disabled = true
   xConnect.textContent = i18n.t('settings.action.connecting')
   try {
@@ -583,11 +588,32 @@ xConnect.addEventListener('click', async () => {
     xPass.value = ''
     renderUpcoming(await q.upcoming(), true)
   } catch (e) {
-    xError.textContent = (e as Error).message
+    // The main process appends a sanitized diagnostic trace to the message
+    // (marker-separated): the human-facing line stays in x-error, the trace
+    // lands in the collapsible block with a copy button.
+    const raw = stripIpcPrefix((e as Error).message ?? '')
+    const { main, details } = splitErrorDetails(raw)
+    xError.textContent = main
     show(xError)
+    if (details) {
+      xDiagBody.textContent = details
+      show(xDiag)
+    }
   } finally {
     xConnect.disabled = false
     xConnect.textContent = i18n.t('settings.action.connect')
+  }
+})
+xDiagCopy.addEventListener('click', async () => {
+  const text = `${xError.textContent ?? ''}\n${xDiagBody.textContent ?? ''}`.trim()
+  try {
+    await navigator.clipboard.writeText(text)
+    xDiagCopy.textContent = i18n.t('exchange.detailsCopied')
+    setTimeout(() => {
+      xDiagCopy.textContent = i18n.t('exchange.detailsCopy')
+    }, 1500)
+  } catch {
+    /* clipboard denied — the trace text stays selectable */
   }
 })
 xDisconnect.addEventListener('click', async () => {
