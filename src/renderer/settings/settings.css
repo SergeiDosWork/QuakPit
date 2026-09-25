@@ -541,8 +541,7 @@ a {
 }
 
 /* ---- Tags ---- */
-.reco,
-.soon {
+.reco {
   display: inline-block;
   font-family: var(--font-note);
   font-size: 11px;
@@ -551,18 +550,10 @@ a {
   border: 1px solid rgba(0, 0, 0, 0.22);
   border-radius: 4px;
   vertical-align: middle;
-}
-.reco {
   background: var(--yellow);
   color: var(--ink);
   margin-left: 6px;
   text-transform: lowercase;
-}
-.soon {
-  margin-left: auto;
-  background: var(--paper-2);
-  color: var(--ink-soft);
-  transform: rotate(2deg);
 }
 
 /* ---- Mini category nav (Appearance) ---- */

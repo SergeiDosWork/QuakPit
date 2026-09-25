@@ -69,8 +69,6 @@ export const ru: Dict = {
   'settings.calendar.subtitle': 'Читается только на этом устройстве — никуда не отправляется.',
   'settings.provider.byLink': 'Добавить по ссылке',
   'settings.badge.easiest': 'проще всего',
-  'settings.provider.googleSoon': 'Вход скоро появится',
-  'settings.badge.soon': 'Скоро',
   'settings.state.connected': 'Подключено',
   'settings.state.connectedDetail': 'Подключено · {detail}',
   'settings.state.connectedOk': '✅ Подключено',
@@ -124,6 +122,20 @@ export const ru: Dict = {
   'settings.exchange.username': 'Имя пользователя',
   'settings.exchange.userPlaceholder': 'CORP\\jane',
   'settings.exchange.password': 'Пароль',
+
+  // --- Google wizard ---
+  'settings.google.title': 'Подключить Google Календарь',
+  'settings.google.cardTitle': 'Подключение через собственный OAuth-клиент Google',
+  'settings.google.step1':
+    'Откройте <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">console.cloud.google.com</a> → создайте проект → включите <b>Google Calendar API</b>.',
+  'settings.google.step2':
+    'OAuth consent screen → <b>External</b> → добавьте скоуп <b>calendar.events.readonly</b> (в тестовом режиме добавьте себя в Test users).',
+  'settings.google.step3': 'Credentials → Create credentials → <b>OAuth client ID</b> → <b>Desktop app</b> → вставьте ID и секрет ниже.',
+  'settings.google.clientId': 'Client ID',
+  'settings.google.clientIdPlaceholder': '1234-abc.apps.googleusercontent.com',
+  'settings.google.clientSecret': 'Client secret',
+  'settings.google.hint':
+    'Уже настроен oauth-credentials.json? Оставьте оба поля пустыми и просто подключитесь.',
 
   // --- option display names (looked up as `option.<group>.<id>`) ---
   'option.head.duck': 'Утка',

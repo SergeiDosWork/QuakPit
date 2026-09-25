@@ -83,10 +83,12 @@ npm test         # vitest (локально: CI гоняет только tsc + 
 3. **OAuth consent screen** → External. Добавить скоуп `.../auth/calendar.events.readonly`. В тестовом
    режиме добавьте свой аккаунт в **Test users** (верификация не нужна до 100 тестеров).
 4. **Credentials → Create credentials → OAuth client ID → Desktop app**.
-5. Скопировать `oauth-credentials.example.json` в **`oauth-credentials.json`** и вставить свой
-   `clientId` / `clientSecret`. (Для desktop-приложений секрет не конфиденциален; файл в gitignore.)
+5. В Quakpit: **Настройки → Календарь → Google Календарь** → вставить `clientId` / `clientSecret` → **Подключить**
+   (браузер откроет согласие Google; ответ приходит на локальный адрес `127.0.0.1`).
 
-Затем: **Настройки → Календарь → Google Календарь → Подключить**.
+   Альтернатива для запуска из исходников: скопировать `oauth-credentials.example.json` в
+   **`oauth-credentials.json`** и заполнить его (файл в gitignore) — тогда поля в приложении можно
+   оставить пустыми. Для desktop-приложений секрет не конфиденциален.
 
 ### Подключение iCloud (без облачных консолей)
 

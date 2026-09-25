@@ -73,8 +73,6 @@ export const en: Dict = {
   'settings.calendar.subtitle': 'Read on this device only — never sent anywhere.',
   'settings.provider.byLink': 'Add by link',
   'settings.badge.easiest': 'easiest',
-  'settings.provider.googleSoon': 'Sign-in coming soon',
-  'settings.badge.soon': 'Soon',
   'settings.state.connected': 'Connected',
   'settings.state.connectedDetail': 'Connected · {detail}',
   'settings.state.connectedOk': '✅ Connected',
@@ -128,6 +126,20 @@ export const en: Dict = {
   'settings.exchange.username': 'Username',
   'settings.exchange.userPlaceholder': 'CORP\\jane',
   'settings.exchange.password': 'Password',
+
+  // --- Google wizard ---
+  'settings.google.title': 'Connect Google Calendar',
+  'settings.google.cardTitle': 'Connect with your own Google OAuth client',
+  'settings.google.step1':
+    'Open <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">console.cloud.google.com</a> → create a project → enable the <b>Google Calendar API</b>.',
+  'settings.google.step2':
+    'OAuth consent screen → <b>External</b> → add the scope <b>calendar.events.readonly</b> (in test mode, add yourself as a Test user).',
+  'settings.google.step3': 'Credentials → Create credentials → <b>OAuth client ID</b> → <b>Desktop app</b> → paste the ID and the secret below.',
+  'settings.google.clientId': 'Client ID',
+  'settings.google.clientIdPlaceholder': '1234-abc.apps.googleusercontent.com',
+  'settings.google.clientSecret': 'Client secret',
+  'settings.google.hint':
+    'Already set up oauth-credentials.json? Leave both fields empty and just connect.',
 
   // --- option display names (looked up as `option.<group>.<id>`) ---
   'option.head.duck': 'Duck',

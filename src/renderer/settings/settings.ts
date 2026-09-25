@@ -79,9 +79,11 @@ const calPicker = $('cal-picker')
 const wizIcal = $('wiz-ical')
 const wizIcloud = $('wiz-icloud')
 const wizExchange = $('wiz-exchange')
+const wizGoogle = $('wiz-google')
 const pickIcalStatus = $('pick-ical-status')
 const pickIcloudStatus = $('pick-icloud-status')
 const pickExchangeStatus = $('pick-exchange-status')
+const pickGoogleStatus = $('pick-google-status')
 const upcomingList = $<HTMLUListElement>('upcoming')
 const upcomingRefresh = $<HTMLButtonElement>('upcoming-refresh')
 // iCal-link wizard
@@ -109,6 +111,15 @@ const xConnect = $<HTMLButtonElement>('x-connect')
 const xDisconnect = $<HTMLButtonElement>('x-disconnect')
 const xDetail = $('x-detail')
 const xError = $('x-error')
+// Google wizard
+const gStepForm = $('g-step-form')
+const gStepConnected = $('g-step-connected')
+const gClient = $<HTMLInputElement>('g-client')
+const gSecret = $<HTMLInputElement>('g-secret')
+const gConnect = $<HTMLButtonElement>('g-connect')
+const gDisconnect = $<HTMLButtonElement>('g-disconnect')
+const gDetail = $('g-detail')
+const gError = $('g-error')
 
 const testBtn = $<HTMLButtonElement>('test-btn')
 $<HTMLImageElement>('brand-logo').src = logoUrl
@@ -359,6 +370,7 @@ function renderCalendar(statuses: ProviderStatus[]): void {
   const ic = statuses.find((s) => s.id === 'ical')
   const i = statuses.find((s) => s.id === 'icloud')
   const x = statuses.find((s) => s.id === 'exchange')
+  const g = statuses.find((s) => s.id === 'google')
 
   pickIcalStatus.textContent = ic?.connected
     ? (ic.detail ?? i18n.t('settings.state.connected'))
@@ -376,6 +388,22 @@ function renderCalendar(statuses: ProviderStatus[]): void {
       : i18n.t('settings.state.connected')
     : i18n.t('settings.state.notConnected')
   pickExchangeStatus.classList.toggle('connected', !!x?.connected)
+  pickGoogleStatus.textContent = g?.connected
+    ? g.detail
+      ? i18n.t('settings.state.connectedDetail', { detail: g.detail })
+      : i18n.t('settings.state.connected')
+    : i18n.t('settings.state.notConnected')
+  pickGoogleStatus.classList.toggle('connected', !!g?.connected)
+
+  // Google wizard: form → connected
+  if (g?.connected) {
+    gDetail.textContent = g.detail ?? ''
+    hide(gStepForm)
+    show(gStepConnected)
+  } else {
+    show(gStepForm)
+    hide(gStepConnected)
+  }
 
   // iCloud wizard: form → connected
   if (i?.connected) {
@@ -481,9 +509,11 @@ async function openWizard(provider: string): Promise<void> {
   hide(icalError)
   hide(iError)
   hide(xError)
+  hide(gError)
   wizIcal.classList.toggle('hidden', provider !== 'ical')
   wizIcloud.classList.toggle('hidden', provider !== 'icloud')
   wizExchange.classList.toggle('hidden', provider !== 'exchange')
+  wizGoogle.classList.toggle('hidden', provider !== 'google')
   if (provider === 'ical') renderFeeds(await q.icalList())
 }
 document.querySelectorAll<HTMLElement>('.provider-btn').forEach((b) =>
@@ -561,6 +591,33 @@ xConnect.addEventListener('click', async () => {
 })
 xDisconnect.addEventListener('click', async () => {
   renderCalendar(await q.calDisconnect('exchange'))
+  renderUpcoming([], false)
+})
+
+// Google wizard
+gConnect.addEventListener('click', async () => {
+  hide(gError)
+  gConnect.disabled = true
+  gConnect.textContent = i18n.t('settings.action.connecting')
+  try {
+    // Save the pasted OAuth client first (empty fields = already configured
+    // via oauth-credentials.json or env). Then the browser opens for consent.
+    if (gClient.value.trim() || gSecret.value.trim()) {
+      renderCalendar(await q.calConfigure('google', { clientId: gClient.value, clientSecret: gSecret.value }))
+    }
+    renderCalendar(await q.calConnect('google'))
+    gSecret.value = ''
+    renderUpcoming(await q.upcoming(), true)
+  } catch (e) {
+    gError.textContent = (e as Error).message
+    show(gError)
+  } finally {
+    gConnect.disabled = false
+    gConnect.textContent = i18n.t('settings.action.connect')
+  }
+})
+gDisconnect.addEventListener('click', async () => {
+  renderCalendar(await q.calDisconnect('google'))
   renderUpcoming([], false)
 })
 
