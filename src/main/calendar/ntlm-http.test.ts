@@ -1,7 +1,7 @@
 import { createServer, type Server, type IncomingMessage, type ServerResponse } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
-import { ntlmPost } from './ntlm-http'
+import { NtlmHandshakeError, ntlmPost } from './ntlm-http'
 
 // A fake EWS endpoint that speaks just enough NTLM to drive the handshake:
 // 401 + a challenge on the first POST, 200 on the second. Modes override the
@@ -18,7 +18,7 @@ const TYPE2 = (() => {
   return 'NTLM ' + buf.toString('base64')
 })()
 
-type Mode = 'normal' | 'redirect' | 'status503'
+type Mode = 'normal' | 'redirect' | 'status503' | 'authReject'
 
 let server: Server
 let origin = ''
@@ -46,6 +46,9 @@ beforeEach(async () => {
         res.end()
       } else if (mode === 'status503') {
         res.writeHead(503)
+        res.end()
+      } else if (mode === 'authReject' && authHeaders.length > 1) {
+        res.writeHead(401) // the type 3 message was rejected: bad credentials
         res.end()
       } else if (authHeaders.length === 1) {
         res.writeHead(401, { 'WWW-Authenticate': TYPE2 })
@@ -95,6 +98,16 @@ describe('ntlmPost', () => {
     await expect(ntlmPost({ url: origin, ...CREDENTIALS, body: '<FindItem/>', timeoutMs: 5000 })).rejects.toThrow(
       /status 503/
     )
+  })
+
+  it('classifies a rejected type 3 as an auth failure with the HTTP status', async () => {
+    mode = 'authReject'
+    const err: unknown = await ntlmPost({ url: origin, ...CREDENTIALS, body: '<FindItem/>', timeoutMs: 5000 }).then(
+      () => null,
+      (e) => e
+    )
+    expect(err).toBeInstanceOf(NtlmHandshakeError)
+    expect((err as NtlmHandshakeError).status).toBe(401)
   })
 
   it('drives https targets with a TLS-capable agent (regression: http.Agent → "Protocol not supported")', async () => {

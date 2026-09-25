@@ -28,6 +28,15 @@ export type NtlmPostResult = { status: number; body: string }
 /** Thrown when the server answers the handshake with a redirect. */
 export class NtlmRedirectError extends Error {}
 
+/** Thrown when the handshake ends on a non-200 response (e.g. 401 = the
+ * server rejected the credentials, 503 = unavailable). Carries the HTTP
+ * status so callers can show an accurate, localized message. */
+export class NtlmHandshakeError extends Error {
+  constructor(readonly status: number) {
+    super(`NTLM handshake failed with status ${status}`)
+  }
+}
+
 type RawResponse = { status: number; wwwAuthenticate: string | null; location: string | null; body: string }
 
 function send(
@@ -99,7 +108,7 @@ export async function ntlmPost(options: NtlmPostOptions): Promise<NtlmPostResult
     }
     if (type1.status === 200) return { status: type1.status, body: type1.body }
     if (type1.status !== 401) {
-      throw new Error(`NTLM handshake failed with status ${type1.status}`)
+      throw new NtlmHandshakeError(type1.status)
     }
 
     const msg2: Type2Message = parseType2Message(type1.wwwAuthenticate ?? '')
@@ -114,7 +123,7 @@ export async function ntlmPost(options: NtlmPostOptions): Promise<NtlmPostResult
       throw new NtlmRedirectError(`server tried to redirect the authenticated request to ${type3.location}`)
     }
     if (type3.status !== 200) {
-      throw new Error(`NTLM handshake failed with status ${type3.status}`)
+      throw new NtlmHandshakeError(type3.status)
     }
     return { status: type3.status, body: type3.body }
   } finally {

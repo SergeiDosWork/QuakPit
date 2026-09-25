@@ -2,7 +2,7 @@
 // Requests go straight from this Mac to the user's Exchange server: Basic auth
 // first, automatic upgrade to NTLMv2 (ntlm-http.ts) when the server asks for it.
 import { net } from 'electron'
-import { NtlmRedirectError, ntlmPost } from './ntlm-http'
+import { NtlmHandshakeError, NtlmRedirectError, ntlmPost } from './ntlm-http'
 import { clearExchange, loadExchange, saveExchange } from '../store'
 import {
   findItemError,
@@ -81,6 +81,12 @@ async function postViaNtlm(c: ExchangeConfig, body: string): Promise<string> {
   } catch (e) {
     if (e instanceof NtlmRedirectError) throw new Error(t('exchange.redirect'))
     if ((e as Error).name === 'TimeoutError') throw new Error(t('exchange.timeout'))
+    if (e instanceof NtlmHandshakeError) {
+      // 401 here means the server rejected the credentials — say so instead of
+      // masking it as a network problem; other statuses map to their own text.
+      if (e.status === 401) throw new Error(t('exchange.status401'))
+      throw new Error(describeStatus(e.status))
+    }
     throw new Error(t('exchange.unreachable'))
   }
 }
@@ -149,12 +155,10 @@ export async function connect(params: {
   const candidate: ExchangeConfig = { serverUrl, username, password, auth: 'basic' }
   const now = Date.now()
   // A tiny FindItem validates the login, the endpoint and EWS availability.
+  // Errors propagate as-is: each failure mode already has a precise,
+  // localized message — replacing it here with a generic one hid the cause.
   const probe = findItemXml(new Date(now).toISOString(), new Date(now + 60_000).toISOString(), 1)
-  try {
-    await postEws(candidate, probe)
-  } catch {
-    throw new Error(t('exchange.connectFailed'))
-  }
+  await postEws(candidate, probe)
   creds = candidate
   persist(creds)
 }

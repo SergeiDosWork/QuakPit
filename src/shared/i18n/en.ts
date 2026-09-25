@@ -207,8 +207,6 @@ export const en: Dict = {
   'exchange.noAuthMethod': 'The server offered no supported login method (Basic or NTLM).',
   'exchange.wrongCreds': 'Wrong username, password or domain.',
   'exchange.enterAll': 'Enter the server address, your username and your password.',
-  'exchange.connectFailed':
-    'Could not connect: check the server address, your username and password. If EWS is disabled by your administrator, Quakpit cannot read this calendar.',
   'ews.enterAddress': 'Enter your Exchange server address.',
   'ews.badAddress': 'That does not look like a server address.',
   'ews.useHttps': 'Use an https:// address — your password is sent to this server.',
