@@ -3,11 +3,7 @@ import type { AddressInfo } from 'node:net'
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import { NtlmHandshakeError, ntlmPost } from './ntlm-http'
 
-// Asserts the diagnostic trace: every handshake step lands in the caller's
-// array so a failed connect can show exactly where it stopped.
-function trace(): string[] {
-  return []
-}
+type Mode = 'normal' | 'redirect' | 'status503' | 'authReject'
 
 // A fake EWS endpoint that speaks just enough NTLM to drive the handshake:
 // 401 + a challenge on the first POST, 200 on the second. Modes override the
@@ -24,20 +20,20 @@ const TYPE2 = (() => {
   return 'NTLM ' + buf.toString('base64')
 })()
 
-type Mode = 'normal' | 'redirect' | 'status503' | 'authReject'
-
 let server: Server
 let origin = ''
 let mode: Mode
 let socketCount = 0
 let authHeaders: string[] = []
 let bodies: string[] = []
+let contentLengths: (string | undefined)[] = []
 
 beforeEach(async () => {
   mode = 'normal'
   socketCount = 0
   authHeaders = []
   bodies = []
+  contentLengths = []
   server = createServer((req: IncomingMessage, res: ServerResponse) => {
     const auth = req.headers.authorization ?? ''
     let body = ''
@@ -47,6 +43,7 @@ beforeEach(async () => {
     req.on('end', () => {
       authHeaders.push(String(auth))
       bodies.push(body)
+      contentLengths.push(req.headers['content-length'])
       if (mode === 'redirect') {
         res.writeHead(302, { Location: 'http://127.0.0.1:1/steal' })
         res.end()
@@ -108,7 +105,7 @@ describe('ntlmPost', () => {
 
   it('classifies a rejected type 3 as an auth failure with the HTTP status', async () => {
     mode = 'authReject'
-    const lines = trace()
+    const lines: string[] = []
     const err: unknown = await ntlmPost({ url: origin, ...CREDENTIALS, body: '<FindItem/>', timeoutMs: 5000, trace: lines }).then(
       () => null,
       (e) => e
@@ -117,6 +114,17 @@ describe('ntlmPost', () => {
     expect((err as NtlmHandshakeError).status).toBe(401)
     expect(lines.some((l) => l.includes('type1') && l.includes('401'))).toBe(true)
     expect(lines.some((l) => l.includes('type3') && l.includes('401'))).toBe(true)
+  })
+
+  it('sends the authenticated request with Content-Length, not chunked encoding', async () => {
+    // httpreq (the old httpntlm transport) always set Content-Length; IIS/
+    // http.sys answers chunked NTLM-authenticated bodies with 400 once the
+    // credentials validate — so the type 3 request must carry the length.
+    const body = '<soap:FindItem>…</soap:FindItem>'
+    await ntlmPost({ url: origin, ...CREDENTIALS, body, timeoutMs: 5000 })
+    // type 1 has no body (Node sends Content-Length: 0 for an empty POST);
+    // the type 3 request must declare the exact byte length instead of chunking.
+    expect(contentLengths).toEqual(['0', String(Buffer.byteLength(body))])
   })
 
   it('drives https targets with a TLS-capable agent (regression: http.Agent → "Protocol not supported")', async () => {

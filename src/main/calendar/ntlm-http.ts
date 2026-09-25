@@ -49,12 +49,20 @@ function send(
   agent: HttpAgent
 ): Promise<RawResponse> {
   return new Promise<RawResponse>((resolve, reject) => {
+    // A body always goes out with an explicit Content-Length: httpreq (the old
+    // httpntlm transport) did the same, while Node otherwise falls back to
+    // Transfer-Encoding: chunked, which IIS/http.sys answers with 400 once the
+    // NTLM credentials validate.
+    const requestHeaders =
+      body !== undefined
+        ? { ...headers, 'Content-Length': String(Buffer.byteLength(body, 'utf8')) }
+        : { ...headers }
     const options = {
       method: 'POST' as const,
       hostname: url.hostname,
       port: url.port,
       path: url.pathname + url.search,
-      headers,
+      headers: requestHeaders,
       agent,
       signal: AbortSignal.timeout(timeoutMs)
     }
