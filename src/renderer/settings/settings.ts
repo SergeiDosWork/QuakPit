@@ -503,6 +503,7 @@ function showPicker(): void {
   hide(wizIcal)
   hide(wizIcloud)
   hide(wizExchange)
+  hide(wizGoogle)
 }
 async function openWizard(provider: string): Promise<void> {
   hide(calPicker)
